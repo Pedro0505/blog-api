@@ -1,6 +1,6 @@
 import { MongooseModule } from '@nestjs/mongoose';
-import { PostsSchema } from './posts.model';
-import { ProjectSchema } from './projects.model';
+import { PostsSchema } from './model/posts.model';
+import { ProjectSchema } from './model/projects.model';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import ModelNames from 'src/constants/ModelNames';
 
