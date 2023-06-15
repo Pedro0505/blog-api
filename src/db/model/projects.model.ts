@@ -1,6 +1,6 @@
 import * as mongoose from 'mongoose';
 
-export const ProjectSchema = new mongoose.Schema(
+export const ProjectsSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
     url: { type: String, required: true },
@@ -9,7 +9,7 @@ export const ProjectSchema = new mongoose.Schema(
   { versionKey: false },
 );
 
-export interface Project {
+export interface Projects {
   id: string;
   name: string;
   description: string;

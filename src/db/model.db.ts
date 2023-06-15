@@ -1,6 +1,6 @@
 import { MongooseModule } from '@nestjs/mongoose';
 import { PostsSchema } from './model/posts.model';
-import { ProjectSchema } from './model/projects.model';
+import { ProjectsSchema } from './model/projects.model';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import ModelNames from 'src/constants/ModelNames';
 
@@ -11,7 +11,7 @@ export const postsForFeature = MongooseModule.forFeature([
   },
   {
     name: ModelNames.PROJECT,
-    schema: ProjectSchema,
+    schema: ProjectsSchema,
   },
 ]);
 

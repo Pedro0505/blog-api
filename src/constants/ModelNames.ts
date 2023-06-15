@@ -1,6 +1,6 @@
 enum ModelNames {
   POSTS = 'POSTS',
-  PROJECT = 'PROJECT',
+  PROJECT = 'PROJECTS',
 }
 
 export default ModelNames;
