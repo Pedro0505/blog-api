@@ -4,18 +4,18 @@ import { ProjectsSchema } from './model/projects.model';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import ModelNames from 'src/constants/ModelNames';
 
-export const postsForFeature = MongooseModule.forFeature([
+export const modelForFeature = MongooseModule.forFeature([
   {
     name: ModelNames.POSTS,
     schema: PostsSchema,
   },
   {
-    name: ModelNames.PROJECT,
+    name: ModelNames.PROJECTS,
     schema: ProjectsSchema,
   },
 ]);
 
-export const postsForRoot = MongooseModule.forRootAsync({
+export const modelForRoot = MongooseModule.forRootAsync({
   imports: [ConfigModule],
   inject: [ConfigService],
   useFactory: async (config: ConfigService) => ({
