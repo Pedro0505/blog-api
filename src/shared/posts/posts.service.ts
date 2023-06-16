@@ -9,4 +9,3 @@ export class PostsService {
     return await this.postsRepository.getAll();
   }
 }
-
