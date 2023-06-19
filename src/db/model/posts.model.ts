@@ -1,5 +1,12 @@
 import * as mongoose from 'mongoose';
 
+mongoose.set('toJSON', {
+  virtuals: true,
+  transform: function (doc, ret) {
+    delete ret._id;
+  },
+});
+
 export const PostsSchema = new mongoose.Schema(
   {
     title: { type: String, required: true },
