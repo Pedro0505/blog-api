@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { ProjectsService } from './projects.service';
 import IProjectBodyUpdate from './interfaces/IProjectBodyUpdate';
-import IProjectBodyCreate from './interfaces/IProjectBodyCreate';
+import { CreateProjectDto } from './dto/CreateProject.dto';
 
 @Controller('/projects')
 export class ProjectsController {
@@ -23,7 +23,7 @@ export class ProjectsController {
 
   @Post()
   @HttpCode(201)
-  public async createProject(@Body() project: IProjectBodyCreate) {
+  public async createProject(@Body() project: CreateProjectDto) {
     return await this.projectsService.createProject(project);
   }
 
