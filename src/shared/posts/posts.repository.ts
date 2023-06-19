@@ -3,8 +3,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import ModelNames from 'src/constants/ModelNames';
 import { Posts } from 'src/db/model/posts.model';
 import { Model } from 'mongoose';
-import IPost from './interfaces/IPost';
 import IPostBodyUpdate from './interfaces/IPostBodyUpdate';
+import { CreatePostDto } from './dto/CreatePost.dto';
 
 @Injectable()
 export class PostsRepository {
@@ -20,7 +20,7 @@ export class PostsRepository {
     return await this.postsModel.findById(id);
   }
 
-  public async createPost(post: IPost) {
+  public async createPost(post: CreatePostDto) {
     return await this.postsModel.create(post);
   }
 

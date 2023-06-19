@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PostsRepository } from './posts.repository';
 import IPostBodyCreate from './interfaces/IPostBodyCreate';
 import IPostBodyUpdate from './interfaces/IPostBodyUpdate';
+import { CreatePostDto } from './dto/CreatePost.dto';
 
 @Injectable()
 export class PostsService {
@@ -15,7 +16,7 @@ export class PostsService {
     return await this.postsRepository.getPostById(id);
   }
 
-  public async createPost(post: IPostBodyCreate) {
+  public async createPost(post: CreatePostDto) {
     const newPost = { ...post, published: new Date().toISOString() };
 
     return await this.postsRepository.createPost(newPost);

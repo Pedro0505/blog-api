@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import IPostBodyUpdate from './interfaces/IPostBodyUpdate';
-import IPostBodyCreate from './interfaces/IPostBodyCreate';
+import { CreatePostDto } from './dto/CreatePost.dto';
 
 @Controller('/posts')
 export class PostsController {
@@ -27,7 +27,7 @@ export class PostsController {
 
   @Post()
   @HttpCode(201)
-  public async createPost(@Body() post: IPostBodyCreate) {
+  public async createPost(@Body() post: CreatePostDto) {
     return await this.postsService.createPost(post);
   }
 
