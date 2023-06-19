@@ -9,8 +9,8 @@ import {
   Query,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
-import IPostBodyUpdate from './interfaces/IPostBodyUpdate';
 import { CreatePostDto } from './dto/CreatePost.dto';
+import { UpdatePostDto } from './dto/UpdatePost.dto';
 
 @Controller('/posts')
 export class PostsController {
@@ -40,7 +40,7 @@ export class PostsController {
   @Patch()
   @HttpCode(200)
   public async updatePostById(
-    @Body() post: IPostBodyUpdate,
+    @Body() post: UpdatePostDto,
     @Query() query: { id: string },
   ) {
     return await this.postsService.updatePostById(post, query.id);

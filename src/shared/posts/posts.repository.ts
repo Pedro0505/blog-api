@@ -3,8 +3,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import ModelNames from 'src/constants/ModelNames';
 import { Posts } from 'src/db/model/posts.model';
 import { Model } from 'mongoose';
-import IPostBodyUpdate from './interfaces/IPostBodyUpdate';
 import { CreatePostDto } from './dto/CreatePost.dto';
+import { UpdatePostDto } from './dto/UpdatePost.dto';
 
 @Injectable()
 export class PostsRepository {
@@ -28,7 +28,7 @@ export class PostsRepository {
     await this.postsModel.deleteOne({ _id: id });
   }
 
-  public async updatePostById(body: IPostBodyUpdate, id: string) {
-    return await this.postsModel.updateOne({ _id: id }, body);
+  public async updatePostById(body: UpdatePostDto, id: string) {
+    return await this.postsModel.findByIdAndUpdate(id, body);
   }
 }

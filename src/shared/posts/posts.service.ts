@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PostsRepository } from './posts.repository';
-import IPostBodyCreate from './interfaces/IPostBodyCreate';
-import IPostBodyUpdate from './interfaces/IPostBodyUpdate';
 import { CreatePostDto } from './dto/CreatePost.dto';
+import { UpdatePostDto } from './dto/UpdatePost.dto';
 
 @Injectable()
 export class PostsService {
@@ -26,7 +25,7 @@ export class PostsService {
     await this.postsRepository.deletePostBydId(id);
   }
 
-  public async updatePostById(body: IPostBodyUpdate, id: string) {
+  public async updatePostById(body: UpdatePostDto, id: string) {
     return await this.postsRepository.updatePostById(body, id);
   }
 }
