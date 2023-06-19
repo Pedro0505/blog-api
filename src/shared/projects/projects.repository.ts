@@ -3,8 +3,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import ModelNames from 'src/constants/ModelNames';
 import { Projects } from 'src/db/model/projects.model';
 import { Model } from 'mongoose';
-import IProjectBodyCreate from './interfaces/IProjectBodyCreate';
-import IProjectBodyUpdate from './interfaces/IProjectBodyUpdate';
+import { UpdateProjectDto } from './dto/UpdateProject.dto';
+import { CreateProjectDto } from './dto/CreateProject.dto';
 
 @Injectable()
 export class ProjectsRepository {
@@ -16,7 +16,7 @@ export class ProjectsRepository {
     return await this.projectsModel.find();
   }
 
-  public async createProject(project: IProjectBodyCreate) {
+  public async createProject(project: CreateProjectDto) {
     return await this.projectsModel.create(project);
   }
 
@@ -24,7 +24,7 @@ export class ProjectsRepository {
     await this.projectsModel.deleteOne({ _id: id });
   }
 
-  public async updateProjectById(project: IProjectBodyUpdate, id: string) {
+  public async updateProjectById(project: UpdateProjectDto, id: string) {
     return await this.projectsModel.findByIdAndUpdate(id, project);
   }
 }

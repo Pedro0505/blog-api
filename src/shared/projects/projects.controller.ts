@@ -9,8 +9,8 @@ import {
   Query,
 } from '@nestjs/common';
 import { ProjectsService } from './projects.service';
-import IProjectBodyUpdate from './interfaces/IProjectBodyUpdate';
 import { CreateProjectDto } from './dto/CreateProject.dto';
+import { UpdateProjectDto } from './dto/UpdateProject.dto';
 
 @Controller('/projects')
 export class ProjectsController {
@@ -36,7 +36,7 @@ export class ProjectsController {
   @Patch()
   @HttpCode(200)
   public async updateProjectById(
-    @Body() project: IProjectBodyUpdate,
+    @Body() project: UpdateProjectDto,
     @Query() query: { id: string },
   ) {
     return await this.projectsService.updateProjectById(project, query.id);

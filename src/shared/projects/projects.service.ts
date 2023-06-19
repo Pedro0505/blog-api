@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ProjectsRepository } from './projects.repository';
-import IProjectBodyCreate from './interfaces/IProjectBodyCreate';
-import IProjectBodyUpdate from './interfaces/IProjectBodyUpdate';
+import { UpdateProjectDto } from './dto/UpdateProject.dto';
+import { CreateProjectDto } from './dto/CreateProject.dto';
 
 @Injectable()
 export class ProjectsService {
@@ -11,7 +11,7 @@ export class ProjectsService {
     return await this.projectsRepository.getAllProjects();
   }
 
-  public async createProject(project: IProjectBodyCreate) {
+  public async createProject(project: CreateProjectDto) {
     return await this.projectsRepository.createProject(project);
   }
 
@@ -19,7 +19,7 @@ export class ProjectsService {
     await this.projectsRepository.deleteProjectBydId(id);
   }
 
-  public async updateProjectById(project: IProjectBodyUpdate, id: string) {
+  public async updateProjectById(project: UpdateProjectDto, id: string) {
     return await this.projectsRepository.updateProjectById(project, id);
   }
 }
