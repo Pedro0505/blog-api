@@ -8,5 +8,6 @@ import { modelForFeature, modelForRoot } from 'src/db/model.db';
   imports: [modelForFeature, modelForRoot],
   controllers: [ProjectsController],
   providers: [ProjectsRepository, ProjectsService],
+  exports: [ProjectsService],
 })
 export class ProjectsModule {}

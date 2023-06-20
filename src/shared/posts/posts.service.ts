@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { PostsRepository } from './posts.repository';
-import IPostBodyCreate from './interfaces/IPostBodyCreate';
 import IPostBodyUpdate from './interfaces/IPostBodyUpdate';
 import { CreatePostDto } from './dto/CreatePost.dto';
 
