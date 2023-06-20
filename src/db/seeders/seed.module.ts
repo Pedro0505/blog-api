@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import Seeds from './Seeds';
-import { PostsModule } from 'src/shared/posts/posts.module';
-import { ProjectsModule } from 'src/shared/projects/projects.module';
+import { PostsModule } from '../../shared/posts/posts.module';
+import { ProjectsModule } from '../../shared/projects/projects.module';
 
 @Module({
   imports: [PostsModule, ProjectsModule],

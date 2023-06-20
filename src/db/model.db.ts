@@ -2,7 +2,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { PostsSchema } from './model/posts.model';
 import { ProjectsSchema } from './model/projects.model';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import ModelNames from 'src/constants/ModelNames';
+import ModelNames from '../constants/ModelNames';
 
 export const modelForFeature = MongooseModule.forFeature([
   {

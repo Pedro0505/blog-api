@@ -1,7 +1,7 @@
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
-import { PostsService } from 'src/shared/posts/posts.service';
+import { PostsService } from '../../shared/posts/posts.service';
 import { postsData, projectsData } from './data';
-import { ProjectsService } from 'src/shared/projects/projects.service';
+import { ProjectsService } from '../../shared/projects/projects.service';
 
 @Injectable()
 export default class Seeds implements OnApplicationBootstrap {
