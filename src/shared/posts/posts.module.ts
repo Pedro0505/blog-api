@@ -8,5 +8,6 @@ import { modelForFeature, modelForRoot } from 'src/db/model.db';
   imports: [modelForFeature, modelForRoot],
   controllers: [PostsController],
   providers: [PostsRepository, PostsService],
+  exports: [PostsService],
 })
 export class PostsModule {}
