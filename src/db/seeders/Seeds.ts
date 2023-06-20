@@ -4,7 +4,7 @@ import { postsData, projectsData } from './data';
 import { ProjectsService } from 'src/shared/projects/projects.service';
 
 @Injectable()
-export default class PostSeed implements OnApplicationBootstrap {
+export default class Seeds implements OnApplicationBootstrap {
   constructor(
     private readonly postService: PostsService,
     private readonly projectService: ProjectsService,
