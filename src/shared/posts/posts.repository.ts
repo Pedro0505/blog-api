@@ -29,6 +29,8 @@ export class PostsRepository {
   }
 
   public async updatePostById(body: UpdatePostDto, id: string) {
-    return await this.postsModel.findByIdAndUpdate(id, body);
+    return await this.postsModel.findByIdAndUpdate(id, body, {
+      returnDocument: 'after',
+    });
   }
 }

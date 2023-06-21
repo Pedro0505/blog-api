@@ -25,6 +25,8 @@ export class ProjectsRepository {
   }
 
   public async updateProjectById(project: UpdateProjectDto, id: string) {
-    return await this.projectsModel.findByIdAndUpdate(id, project);
+    return await this.projectsModel.findByIdAndUpdate(id, project, {
+      returnDocument: 'after',
+    });
   }
 }
