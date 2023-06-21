@@ -54,7 +54,7 @@ describe('Testing Projects Route (e2e)', () => {
       expect(status).toBe(201);
     });
 
-    describe('Teesting name DTO erros', () => {
+    describe('Testing name DTO erros', () => {
       it('Testing post when dont recive name', async () => {
         const { body, status } = await request(app.getHttpServer())
           .post('/projects')
@@ -81,6 +81,37 @@ describe('Testing Projects Route (e2e)', () => {
           .send(serializeBodyCreate.changeKeyValue('name', 1));
 
         expect(body.message).toContain('O nome precisa ser uma strig');
+        expect(status).toBe(400);
+      });
+    });
+
+    describe('Testing description DTO erros', () => {
+      it('Testing post when dont recive description', async () => {
+        const { body, status } = await request(app.getHttpServer())
+          .post('/projects')
+          .send(serializeBodyCreate.removeKey('description'));
+
+        expect(body.message).toContain('A descrição não pode ser vazia');
+        expect(status).toBe(400);
+      });
+
+      it('Testing post when description have more than 50 characters', async () => {
+        const { body, status } = await request(app.getHttpServer())
+          .post('/projects')
+          .send(serializeBodyCreate.repeatChar('description', 65));
+
+        expect(body.message).toContain(
+          'A descrição precisa ter entre 1 e 255 caracteres',
+        );
+        expect(status).toBe(400);
+      });
+
+      it("Testing post when description isn't a string", async () => {
+        const { body, status } = await request(app.getHttpServer())
+          .post('/projects')
+          .send(serializeBodyCreate.changeKeyValue('description', 1));
+
+        expect(body.message).toContain('A descrição precisa ser uma strig');
         expect(status).toBe(400);
       });
     });
