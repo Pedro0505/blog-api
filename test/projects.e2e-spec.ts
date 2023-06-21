@@ -46,6 +46,6 @@ describe('Testing Projects Route (e2e)', () => {
     );
 
     expect(body).toStrictEqual(projects);
-    expect(status).toStrictEqual(200);
+    expect(status).toStrictEqual(2);
   });
 });
