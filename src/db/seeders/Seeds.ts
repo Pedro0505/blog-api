@@ -37,7 +37,7 @@ export default class Seeds implements OnApplicationBootstrap {
   }
 
   onApplicationBootstrap() {
-    const NODE_ENV = process.env.NODE_ENV || 'DEV';
+    const NODE_ENV = process.env.NODE_ENV;
 
     if (NODE_ENV === 'DEV') {
       this.createPostSeed();

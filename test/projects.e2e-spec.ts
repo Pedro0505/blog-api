@@ -4,28 +4,15 @@ import * as request from 'supertest';
 import { ProjectsService } from '../src/shared/projects/projects.service';
 import { ProjectsRepository } from '../src/shared/projects/projects.repository';
 import { ProjectsController } from '../src/shared/projects/projects.controller';
+import { projectsMock } from './mock';
 
 describe('Testing Projects Route (e2e)', () => {
   let app: INestApplication;
 
-  const projects = [
-    {
-      id: '6491cd4543f10f90bb09ed7d',
-      name: 'Projeto 1',
-      url: 'https://projeto1.com',
-      description: 'Good',
-    },
-    {
-      id: '6491cd4543f10f90bb09ed7c',
-      name: 'Projeto 2',
-      url: 'https://projeto2.com',
-      description: 'Good',
-    },
-  ];
-
   beforeAll(async () => {
-    const mockRepository = {
-      getAllProjects: jest.fn().mockResolvedValue(projects),
+    const mockRepository: Partial<ProjectsRepository> = {
+      getAllProjects: jest.fn().mockResolvedValue(projectsMock.projects),
+      createProject: jest.fn().mockResolvedValue(projectsMock.projectCreated),
     };
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -45,7 +32,16 @@ describe('Testing Projects Route (e2e)', () => {
       '/projects',
     );
 
-    expect(body).toStrictEqual(projects);
+    expect(body).toStrictEqual(projectsMock.projects);
     expect(status).toStrictEqual(200);
+  });
+
+  it('/projects (POST)', async () => {
+    const { body, status } = await request(app.getHttpServer())
+      .post('/projects')
+      .send(projectsMock.projectToCreate);
+
+    expect(body).toStrictEqual(projectsMock.projectCreated);
+    expect(status).toStrictEqual(201);
   });
 });
