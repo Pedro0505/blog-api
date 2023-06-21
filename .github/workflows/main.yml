@@ -23,6 +23,9 @@ jobs:
     needs: [eslint-api]
     steps:
       - name: Create image 
+        run: ls
+
+      - name: Create image 
         run: docker build -t blog-api-test .
 
       - name: Run containers
