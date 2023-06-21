@@ -95,7 +95,7 @@ describe('Testing Projects Route (e2e)', () => {
         expect(status).toBe(400);
       });
 
-      it('Testing post when description have more than 50 characters', async () => {
+      it('Testing post when description have more than 255 characters', async () => {
         const { body, status } = await request(app.getHttpServer())
           .post('/projects')
           .send(serializeBodyCreate.repeatChar('description', 65));
@@ -150,17 +150,65 @@ describe('Testing Projects Route (e2e)', () => {
     expect(status).toBe(204);
   });
 
-  it('/projects (PATCH)', async () => {
-    const { body: projectsBody } = await request(app.getHttpServer()).get(
-      '/projects',
-    );
+  describe('/projects (PATCH)', () => {
+    const id = projectsMock.projects[0].id;
 
-    const { body, status } = await request(app.getHttpServer())
-      .patch(`/projects?id=${projectsBody[0].id}`)
-      .send(projectsMock.projectToPatch);
+    it('Testing patch with sucess', async () => {
+      const { body, status } = await request(app.getHttpServer())
+        .patch(`/projects?id=${id}`)
+        .send(projectsMock.projectToPatch);
 
-    expect(body).toEqual(projectsMock.projectUpdated);
-    expect(projectsBody[0].id).toBe(projectsMock.projectUpdated.id);
-    expect(status).toBe(200);
+      expect(body).toEqual(projectsMock.projectUpdated);
+      expect(id).toBe(projectsMock.projectUpdated.id);
+      expect(status).toBe(200);
+    });
+
+    describe('Testing name DTO erros', () => {
+      const serializeBodyPatch = new SerializeBody({ name: 'Projeto 1' });
+
+      it('Testing patch when name have more than 50 characters', async () => {
+        const { body, status } = await request(app.getHttpServer())
+          .patch(`/projects?id=${id}`)
+          .send(serializeBodyPatch.repeatChar('name', 20));
+
+        expect(body.message).toContain(
+          'O nome precisa ter entre 1 e 50 caracteres',
+        );
+        expect(status).toBe(400);
+      });
+
+      it("Testing patch when name isn't a string", async () => {
+        const { body, status } = await request(app.getHttpServer())
+          .patch(`/projects?id=${id}`)
+          .send(serializeBodyPatch.changeKeyValue('name', 1));
+
+        expect(body.message).toContain('O nome precisa ser uma strig');
+        expect(status).toBe(400);
+      });
+    });
+
+    describe('Testing description DTO erros', () => {
+      const serializeBodyPatch = new SerializeBody({ description: 'Good' });
+
+      it('Testing patch when description have more than 255 characters', async () => {
+        const { body, status } = await request(app.getHttpServer())
+          .patch(`/projects?id=${id}`)
+          .send(serializeBodyPatch.repeatChar('description', 65));
+
+        expect(body.message).toContain(
+          'A descrição precisa ter entre 1 e 255 caracteres',
+        );
+        expect(status).toBe(400);
+      });
+
+      it("Testing patch when description isn't a string", async () => {
+        const { body, status } = await request(app.getHttpServer())
+          .patch(`/projects?id=${id}`)
+          .send(serializeBodyPatch.changeKeyValue('description', 1));
+
+        expect(body.message).toContain('A descrição precisa ser uma strig');
+        expect(status).toBe(400);
+      });
+    });
   });
 });
