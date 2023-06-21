@@ -115,6 +115,26 @@ describe('Testing Projects Route (e2e)', () => {
         expect(status).toBe(400);
       });
     });
+
+    describe('Testing url DTO erros', () => {
+      it('Testing post when dont recive url', async () => {
+        const { body, status } = await request(app.getHttpServer())
+          .post('/projects')
+          .send(serializeBodyCreate.removeKey('url'));
+
+        expect(body.message).toContain('A url não pode ser vazia');
+        expect(status).toBe(400);
+      });
+
+      it("Testing post when url isn't a string", async () => {
+        const { body, status } = await request(app.getHttpServer())
+          .post('/projects')
+          .send(serializeBodyCreate.changeKeyValue('url', 1));
+
+        expect(body.message).toContain('A url precisa ser uma strig');
+        expect(status).toBe(400);
+      });
+    });
   });
 
   it('/projects (DELETE)', async () => {
