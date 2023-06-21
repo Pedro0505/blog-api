@@ -1,10 +1,10 @@
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
-import { PostsService } from 'src/shared/posts/posts.service';
+import { PostsService } from '../../shared/posts/posts.service';
 import { postsData, projectsData } from './data';
-import { ProjectsService } from 'src/shared/projects/projects.service';
+import { ProjectsService } from '../../shared/projects/projects.service';
 
 @Injectable()
-export default class PostSeed implements OnApplicationBootstrap {
+export default class Seeds implements OnApplicationBootstrap {
   constructor(
     private readonly postService: PostsService,
     private readonly projectService: ProjectsService,
@@ -37,7 +37,7 @@ export default class PostSeed implements OnApplicationBootstrap {
   }
 
   onApplicationBootstrap() {
-    const NODE_ENV = process.env.NODE_ENV || 'DEV';
+    const NODE_ENV = process.env.NODE_ENV;
 
     if (NODE_ENV === 'DEV') {
       this.createPostSeed();

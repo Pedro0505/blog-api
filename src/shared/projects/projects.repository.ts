@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import ModelNames from 'src/constants/ModelNames';
-import { Projects } from 'src/db/model/projects.model';
+import ModelNames from '../../constants/ModelNames';
+import { Projects } from '../../db/model/projects.model';
 import { Model } from 'mongoose';
 import { UpdateProjectDto } from './dto/UpdateProject.dto';
 import { CreateProjectDto } from './dto/CreateProject.dto';
@@ -25,6 +25,8 @@ export class ProjectsRepository {
   }
 
   public async updateProjectById(project: UpdateProjectDto, id: string) {
-    return await this.projectsModel.findByIdAndUpdate(id, project);
+    return await this.projectsModel.findByIdAndUpdate(id, project, {
+      returnDocument: 'after',
+    });
   }
 }

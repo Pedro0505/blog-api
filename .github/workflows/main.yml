@@ -17,3 +17,20 @@ jobs:
 
       - name: Running lint to check errors
         run: npm run lint:check
+
+  test-e2e:
+    runs-on: ubuntu-20.04
+    needs: [eslint-api]
+    steps:
+      - name: Verify Git Repository
+        uses: actions/checkout@v2
+
+      - name: Create image 
+        run: docker build . -t blog-api-test -f Dockerfile.test
+
+      - name: Run tests e2e
+        run: docker run --name blog-api blog-api-test
+
+      - name: Remove container
+        if: always()
+        run: docker rm --force blog-api

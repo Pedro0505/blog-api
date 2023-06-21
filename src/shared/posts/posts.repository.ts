@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import ModelNames from 'src/constants/ModelNames';
-import { Posts } from 'src/db/model/posts.model';
+import ModelNames from '../../constants/ModelNames';
+import { Posts } from '../../../src/db/model/posts.model';
 import { Model } from 'mongoose';
 import { CreatePostDto } from './dto/CreatePost.dto';
 import { UpdatePostDto } from './dto/UpdatePost.dto';
@@ -29,6 +29,8 @@ export class PostsRepository {
   }
 
   public async updatePostById(body: UpdatePostDto, id: string) {
-    return await this.postsModel.findByIdAndUpdate(id, body);
+    return await this.postsModel.findByIdAndUpdate(id, body, {
+      returnDocument: 'after',
+    });
   }
 }
