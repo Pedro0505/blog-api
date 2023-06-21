@@ -1,5 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import {
+  INestApplication,
+  NotFoundException,
+  ValidationPipe,
+} from '@nestjs/common';
 import * as request from 'supertest';
 import { ProjectsService } from '../src/shared/projects/projects.service';
 import { ProjectsRepository } from '../src/shared/projects/projects.repository';
@@ -14,7 +18,12 @@ describe('Testing Projects Route (e2e)', () => {
     const mockRepository: Partial<ProjectsRepository> = {
       getAllProjects: jest.fn().mockResolvedValue(projectsMock.projects),
       createProject: jest.fn().mockResolvedValue(projectsMock.projectCreated),
-      deleteProjectBydId: jest.fn().mockResolvedValue(undefined),
+      deleteProjectBydId: jest
+        .fn()
+        .mockImplementationOnce(() => {
+          throw new NotFoundException('Project id not found');
+        })
+        .mockResolvedValue(undefined),
       updateProjectById: jest
         .fn()
         .mockResolvedValue(projectsMock.projectUpdated),
@@ -31,6 +40,10 @@ describe('Testing Projects Route (e2e)', () => {
     app = moduleFixture.createNestApplication();
     app.useGlobalPipes(new ValidationPipe());
     await app.init();
+  });
+
+  afterAll(() => {
+    jest.restoreAllMocks();
   });
 
   it('/projects (GET)', async () => {
@@ -140,6 +153,16 @@ describe('Testing Projects Route (e2e)', () => {
   describe('/projects (DELETE)', () => {
     const id = projectsMock.projects[0].id;
 
+    it('Testing delete with id which not exist', async () => {
+      const { body, status } = await request(app.getHttpServer()).delete(
+        '/projects?id=64934e56e1ed93d36835277b',
+      );
+
+      expect(body).toHaveProperty('message');
+      expect(body.message).toBe('Project id not found');
+      expect(status).toBe(404);
+    });
+
     it('Testing delete with sucess', async () => {
       const { body, status } = await request(app.getHttpServer()).delete(
         `/projects?id=${id}`,
@@ -147,16 +170,6 @@ describe('Testing Projects Route (e2e)', () => {
 
       expect(body).toEqual({});
       expect(status).toBe(204);
-    });
-
-    it('Testing delete with id which not exist', async () => {
-      const { body, status } = await request(app.getHttpServer()).delete(
-        `/projects?id=${1012}`,
-      );
-
-      expect(body).toHaveProperty('message');
-      expect(body.message).toBe('Project id not found');
-      expect(status).toBe(404);
     });
   });
 
