@@ -137,17 +137,27 @@ describe('Testing Projects Route (e2e)', () => {
     });
   });
 
-  it('/projects (DELETE)', async () => {
-    const { body: projectsBody } = await request(app.getHttpServer()).get(
-      '/projects',
-    );
+  describe('/projects (DELETE)', () => {
+    const id = projectsMock.projects[0].id;
 
-    const { body, status } = await request(app.getHttpServer()).delete(
-      `/projects?id=${projectsBody[0].id}`,
-    );
+    it('Testing delete with sucess', async () => {
+      const { body, status } = await request(app.getHttpServer()).delete(
+        `/projects?id=${id}`,
+      );
 
-    expect(body).toEqual({});
-    expect(status).toBe(204);
+      expect(body).toEqual({});
+      expect(status).toBe(204);
+    });
+
+    it('Testing delete with id which not exist', async () => {
+      const { body, status } = await request(app.getHttpServer()).delete(
+        `/projects?id=${1012}`,
+      );
+
+      expect(body).toHaveProperty('message');
+      expect(body.message).toBe('Project id not found');
+      expect(status).toBe(404);
+    });
   });
 
   describe('/projects (PATCH)', () => {
