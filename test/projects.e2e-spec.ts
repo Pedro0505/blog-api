@@ -14,6 +14,9 @@ describe('Testing Projects Route (e2e)', () => {
       getAllProjects: jest.fn().mockResolvedValue(projectsMock.projects),
       createProject: jest.fn().mockResolvedValue(projectsMock.projectCreated),
       deleteProjectBydId: jest.fn().mockResolvedValue(undefined),
+      updateProjectById: jest
+        .fn()
+        .mockResolvedValue(projectsMock.projectUpdated),
     };
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -34,7 +37,7 @@ describe('Testing Projects Route (e2e)', () => {
     );
 
     expect(body).toStrictEqual(projectsMock.projects);
-    expect(status).toStrictEqual(200);
+    expect(status).toBe(200);
   });
 
   it('/projects (POST)', async () => {
@@ -43,7 +46,7 @@ describe('Testing Projects Route (e2e)', () => {
       .send(projectsMock.projectToCreate);
 
     expect(body).toStrictEqual(projectsMock.projectCreated);
-    expect(status).toStrictEqual(201);
+    expect(status).toBe(201);
   });
 
   it('/projects (DELETE)', async () => {
@@ -56,6 +59,20 @@ describe('Testing Projects Route (e2e)', () => {
     );
 
     expect(body).toEqual({});
-    expect(status).toStrictEqual(204);
+    expect(status).toBe(204);
+  });
+
+  it('/projects (patch)', async () => {
+    const { body: projectsBody } = await request(app.getHttpServer()).get(
+      '/projects',
+    );
+
+    const { body, status } = await request(app.getHttpServer())
+      .patch(`/projects?id=${projectsBody[0].id}`)
+      .send(projectsMock.projectToPatch);
+
+    expect(body).toEqual(projectsMock.projectUpdated);
+    expect(projectsBody[0].id).toBe(projectsMock.projectUpdated.id);
+    expect(status).toBe(200);
   });
 });

@@ -26,4 +26,15 @@ export default {
     url: 'https://projeto3.com',
     description: 'Good',
   },
+
+  projectToPatch: {
+    name: 'Projeto 25',
+  },
+
+  projectUpdated: {
+    id: '6491cd4543f10f90bb09ed7d',
+    name: 'Projeto 25',
+    url: 'https://projeto1.com',
+    description: 'Good',
+  },
 };
