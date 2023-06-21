@@ -1,10 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { ProjectsService } from '../src/shared/projects/projects.service';
 import { ProjectsRepository } from '../src/shared/projects/projects.repository';
 import { ProjectsController } from '../src/shared/projects/projects.controller';
 import { projectsMock } from './mock';
+import SerializeBody from './utils/SerializeBody';
 
 describe('Testing Projects Route (e2e)', () => {
   let app: INestApplication;
@@ -28,6 +29,7 @@ describe('Testing Projects Route (e2e)', () => {
       .compile();
 
     app = moduleFixture.createNestApplication();
+    app.useGlobalPipes(new ValidationPipe());
     await app.init();
   });
 
@@ -40,13 +42,48 @@ describe('Testing Projects Route (e2e)', () => {
     expect(status).toBe(200);
   });
 
-  it('/projects (POST)', async () => {
-    const { body, status } = await request(app.getHttpServer())
-      .post('/projects')
-      .send(projectsMock.projectToCreate);
+  describe('/projects (POST)', () => {
+    const serializeBodyCreate = new SerializeBody(projectsMock.projectToCreate);
 
-    expect(body).toStrictEqual(projectsMock.projectCreated);
-    expect(status).toBe(201);
+    it('Testing post with sucess', async () => {
+      const { body, status } = await request(app.getHttpServer())
+        .post('/projects')
+        .send(projectsMock.projectToCreate);
+
+      expect(body).toStrictEqual(projectsMock.projectCreated);
+      expect(status).toBe(201);
+    });
+
+    describe('Teesting name DTO erros', () => {
+      it('Testing post when dont recive name', async () => {
+        const { body, status } = await request(app.getHttpServer())
+          .post('/projects')
+          .send(serializeBodyCreate.removeKey('name'));
+
+        expect(body.message).toContain('O nome não pode ser vazio');
+        expect(status).toBe(400);
+      });
+
+      it('Testing post when name have more than 50 characters', async () => {
+        const { body, status } = await request(app.getHttpServer())
+          .post('/projects')
+          .send(serializeBodyCreate.repeatChar('name', 25));
+
+        expect(body.message).toContain(
+          'O nome precisa ter entre 1 e 50 caracteres',
+        );
+        expect(status).toBe(400);
+      });
+
+      it("Testing post when name isn't a string", async () => {
+        const { body, status } = await request(app.getHttpServer())
+          .post('/projects')
+          .send(serializeBodyCreate.changeKeyValue('name', 1));
+
+        expect(body.message).toContain('O nome precisa ser uma strig');
+        expect(status).toBe(400);
+      });
+    });
   });
 
   it('/projects (DELETE)', async () => {
@@ -62,7 +99,7 @@ describe('Testing Projects Route (e2e)', () => {
     expect(status).toBe(204);
   });
 
-  it('/projects (patch)', async () => {
+  it('/projects (PATCH)', async () => {
     const { body: projectsBody } = await request(app.getHttpServer()).get(
       '/projects',
     );
