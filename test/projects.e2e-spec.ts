@@ -13,6 +13,7 @@ describe('Testing Projects Route (e2e)', () => {
     const mockRepository: Partial<ProjectsRepository> = {
       getAllProjects: jest.fn().mockResolvedValue(projectsMock.projects),
       createProject: jest.fn().mockResolvedValue(projectsMock.projectCreated),
+      deleteProjectBydId: jest.fn().mockResolvedValue(undefined),
     };
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -43,5 +44,18 @@ describe('Testing Projects Route (e2e)', () => {
 
     expect(body).toStrictEqual(projectsMock.projectCreated);
     expect(status).toStrictEqual(201);
+  });
+
+  it('/projects (DELETE)', async () => {
+    const { body: projectsBody } = await request(app.getHttpServer()).get(
+      '/projects',
+    );
+
+    const { body, status } = await request(app.getHttpServer()).delete(
+      `/projects?id=${projectsBody[0].id}`,
+    );
+
+    expect(body).toEqual({});
+    expect(status).toStrictEqual(204);
   });
 });
