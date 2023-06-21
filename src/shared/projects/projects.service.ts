@@ -1,7 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { ProjectsRepository } from './projects.repository';
 import { UpdateProjectDto } from './dto/UpdateProject.dto';
 import { CreateProjectDto } from './dto/CreateProject.dto';
+import isValidObjectId from '../utils/isValidObjectId';
 
 @Injectable()
 export class ProjectsService {
@@ -16,7 +21,17 @@ export class ProjectsService {
   }
 
   public async deleteProjectBydId(id: string) {
-    await this.projectsRepository.deleteProjectBydId(id);
+    const valitedObjectId = isValidObjectId(id);
+
+    if (valitedObjectId) {
+      const projectExist = await this.projectsRepository.deleteProjectBydId(id);
+
+      if (projectExist === null) {
+        throw new NotFoundException('Project id not found');
+      }
+    } else {
+      throw new BadRequestException('Invalid id');
+    }
   }
 
   public async updateProjectById(project: UpdateProjectDto, id: string) {

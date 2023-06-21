@@ -21,7 +21,7 @@ export class ProjectsRepository {
   }
 
   public async deleteProjectBydId(id: string) {
-    await this.projectsModel.deleteOne({ _id: id });
+    return await this.projectsModel.findOneAndDelete({ _id: id });
   }
 
   public async updateProjectById(project: UpdateProjectDto, id: string) {
