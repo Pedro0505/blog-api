@@ -22,11 +22,11 @@ jobs:
     runs-on: ubuntu-20.04
     needs: [eslint-api]
     steps:
-      - name: Create image 
-        run: ls
+      - name: Verify Git Repository
+        uses: actions/checkout@v2
 
       - name: Create image 
-        run: docker build -t blog-api-test .
+        run: docker build . -t blog-api-test -f Dockerfile.test
 
       - name: Run containers
         run: docker run --name blog-api blog-api-test
