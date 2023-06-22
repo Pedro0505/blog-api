@@ -1,9 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import {
-  INestApplication,
-  NotFoundException,
-  ValidationPipe,
-} from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { ProjectsService } from '../src/shared/projects/projects.service';
 import { ProjectsRepository } from '../src/shared/projects/projects.repository';
@@ -20,12 +16,11 @@ describe('Testing Projects Route (e2e)', () => {
       createProject: jest.fn().mockResolvedValue(projectsMock.projectCreated),
       deleteProjectBydId: jest
         .fn()
-        .mockImplementationOnce(() => {
-          throw new NotFoundException('Project id not found');
-        })
+        .mockResolvedValueOnce(null)
         .mockResolvedValue(undefined),
       updateProjectById: jest
         .fn()
+        .mockImplementationOnce(null)
         .mockResolvedValue(projectsMock.projectUpdated),
     };
 
@@ -175,6 +170,16 @@ describe('Testing Projects Route (e2e)', () => {
 
   describe('/projects (PATCH)', () => {
     const id = projectsMock.projects[0].id;
+
+    it('Testing patch with id that not exist', async () => {
+      const { body, status } = await request(app.getHttpServer())
+        .patch('/projects?id=64934e56e1ed93d36835277b')
+        .send(projectsMock.projectToPatch);
+
+      expect(body).toHaveProperty('message');
+      expect(body.message).toBe('Project id not found');
+      expect(status).toBe(404);
+    });
 
     it('Testing patch with sucess', async () => {
       const { body, status } = await request(app.getHttpServer())
