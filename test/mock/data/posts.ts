@@ -25,4 +25,20 @@ export default {
       published: '2023-06-22T13:31:35.622Z',
     },
   ],
+
+  postToCreate: {
+    title: 'Post do Ano 2021',
+    description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
+    content: '<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>',
+    category: 'Node',
+  },
+
+  postCreated: {
+    id: '64947e71a4849ff7787bb1e4',
+    title: 'Post do Ano 2021',
+    description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
+    content: '<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>',
+    published: '2023-06-22T17:01:37.412Z',
+    category: 'Node',
+  },
 };

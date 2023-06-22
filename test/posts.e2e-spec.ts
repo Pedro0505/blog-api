@@ -50,4 +50,21 @@ describe('Testing Posts Route (e2e)', () => {
       expect(body.id).toBe(id);
     });
   });
+
+  describe('/posts (POST)', () => {
+    it('Testing post creating with success', async () => {
+      const mockDate = new Date(postsMock.postCreated.published);
+
+      jest.spyOn(global, 'Date').mockImplementation(() => mockDate);
+
+      const { status, body } = await request(app.getHttpServer())
+        .post('/posts')
+        .send(postsMock.postToCreate);
+
+      expect(status).toBe(201);
+      expect(body).toStrictEqual(postsMock.postCreated);
+    });
+
+    jest.spyOn(global, 'Date').mockRestore();
+  });
 });
