@@ -6,6 +6,7 @@ import { ProjectsRepository } from '../src/shared/projects/projects.repository';
 import { ProjectsController } from '../src/shared/projects/projects.controller';
 import { projectsMock } from './mock';
 import SerializeBody from './utils/SerializeBody';
+import ValidatorMiddleware from '../src/shared/middleware/Validator.middleware';
 
 describe('Testing Projects Route (e2e)', () => {
   let app: INestApplication;
@@ -34,6 +35,7 @@ describe('Testing Projects Route (e2e)', () => {
 
     app = moduleFixture.createNestApplication();
     app.useGlobalPipes(new ValidationPipe());
+    app.use(new ValidatorMiddleware().use);
     await app.init();
   });
 
