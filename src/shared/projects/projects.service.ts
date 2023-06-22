@@ -21,9 +21,9 @@ export class ProjectsService {
   }
 
   public async deleteProjectBydId(id: string) {
-    const valitedObjectId = isValidObjectId(id);
+    const validateObjectId = isValidObjectId(id);
 
-    if (valitedObjectId) {
+    if (validateObjectId) {
       const projectExist = await this.projectsRepository.deleteProjectBydId(id);
 
       if (projectExist === null) {
@@ -35,6 +35,21 @@ export class ProjectsService {
   }
 
   public async updateProjectById(project: UpdateProjectDto, id: string) {
-    return await this.projectsRepository.updateProjectById(project, id);
+    const validateObjectId = isValidObjectId(id);
+
+    if (validateObjectId) {
+      const projectExist = await this.projectsRepository.updateProjectById(
+        project,
+        id,
+      );
+
+      if (projectExist === null) {
+        throw new NotFoundException('Project id not found');
+      } else {
+        return projectExist;
+      }
+    } else {
+      throw new BadRequestException('Invalid id');
+    }
   }
 }
