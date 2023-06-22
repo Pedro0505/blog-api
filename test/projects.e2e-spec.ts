@@ -260,5 +260,29 @@ describe('Testing Projects Route (e2e)', () => {
         expect(status).toBe(400);
       });
     });
+
+    describe('Testing url DTO erros', () => {
+      const serializeBodyPatch = new SerializeBody({
+        url: 'http://project3.com',
+      });
+
+      it('Testing patch when dont recive url', async () => {
+        const { body, status } = await request(app.getHttpServer())
+          .patch('/projects')
+          .send(serializeBodyPatch.changeKeyValue('url', ''));
+
+        expect(body.message).toContain('A url não pode ser vazia');
+        expect(status).toBe(400);
+      });
+
+      it("Testing patch when url isn't a string", async () => {
+        const { body, status } = await request(app.getHttpServer())
+          .patch(`/projects?id=${id}`)
+          .send(serializeBodyPatch.changeKeyValue('url', 1));
+
+        expect(body.message).toContain('A url precisa ser uma strig');
+        expect(status).toBe(400);
+      });
+    });
   });
 });
