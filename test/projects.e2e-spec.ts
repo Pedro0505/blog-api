@@ -191,6 +191,16 @@ describe('Testing Projects Route (e2e)', () => {
       expect(status).toBe(404);
     });
 
+    it('Testing patch with invalid id', async () => {
+      const { body, status } = await request(app.getHttpServer())
+        .patch('/projects?id=123')
+        .send(projectsMock.projectToPatch);
+
+      expect(body).toHaveProperty('message');
+      expect(body.message).toBe('Invalid id');
+      expect(status).toBe(400);
+    });
+
     it('Testing patch with sucess', async () => {
       const { body, status } = await request(app.getHttpServer())
         .patch(`/projects?id=${id}`)
