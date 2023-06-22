@@ -63,8 +63,21 @@ describe('Testing Posts Route (e2e)', () => {
 
       expect(status).toBe(201);
       expect(body).toStrictEqual(postsMock.postCreated);
-    });
 
-    jest.spyOn(global, 'Date').mockRestore();
+      jest.spyOn(global, 'Date').mockRestore();
+    });
+  });
+
+  describe('/posts (DELETE)', () => {
+    it('Testing when post is delete with success', async () => {
+      const id = postsMock.posts[0].id;
+
+      const { status, body } = await request(app.getHttpServer()).delete(
+        `/posts/?id=${id}`,
+      );
+
+      expect(status).toBe(204);
+      expect(body).toStrictEqual({});
+    });
   });
 });
