@@ -36,4 +36,18 @@ describe('Testing Posts Route (e2e)', () => {
     expect(status).toBe(200);
     expect(body).toStrictEqual(postsMock.posts);
   });
+
+  describe('/posts/?id (GET)', () => {
+    it('Testing when get a post with success', async () => {
+      const id = postsMock.posts[0].id;
+
+      const { status, body } = await request(app.getHttpServer()).get(
+        `/posts/?id=${id}`,
+      );
+
+      expect(status).toBe(200);
+      expect(body).toStrictEqual(postsMock.posts[0]);
+      expect(body.id).toBe(id);
+    });
+  });
 });
