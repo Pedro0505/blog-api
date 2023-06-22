@@ -158,6 +158,16 @@ describe('Testing Projects Route (e2e)', () => {
       expect(status).toBe(404);
     });
 
+    it('Testing delete with invalid id', async () => {
+      const { body, status } = await request(app.getHttpServer()).delete(
+        '/projects?id=123',
+      );
+
+      expect(body).toHaveProperty('message');
+      expect(body.message).toBe('Invalid id');
+      expect(status).toBe(400);
+    });
+
     it('Testing delete with sucess', async () => {
       const { body, status } = await request(app.getHttpServer()).delete(
         `/projects?id=${id}`,
