@@ -20,7 +20,7 @@ describe('Testing Projects Route (e2e)', () => {
         .mockResolvedValue(undefined),
       updateProjectById: jest
         .fn()
-        .mockImplementationOnce(null)
+        .mockResolvedValueOnce(null)
         .mockResolvedValue(projectsMock.projectUpdated),
     };
 
