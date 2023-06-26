@@ -147,6 +147,40 @@ describe('Testing Posts Route (e2e)', () => {
         );
       });
     });
+
+    describe('Testing DTO erros in category', () => {
+      it('Testing when category is not a string', async () => {
+        const { status, body } = await request(app.getHttpServer())
+          .post('/posts')
+          .send(serializeBodyCreate.changeKeyValue('category', 1));
+
+        expect(status).toBe(400);
+        expect(body).toHaveProperty('message');
+        expect(body.message).toContain('A categoria precisa ser uma strig');
+      });
+
+      it('Testing when category is empty', async () => {
+        const { status, body } = await request(app.getHttpServer())
+          .post('/posts')
+          .send(serializeBodyCreate.changeKeyValue('category', ''));
+
+        expect(status).toBe(400);
+        expect(body).toHaveProperty('message');
+        expect(body.message).toContain('A categoria não pode ser vazia');
+      });
+
+      it('Testing when category have more than 50 char', async () => {
+        const { status, body } = await request(app.getHttpServer())
+          .post('/posts')
+          .send(serializeBodyCreate.repeatChar('category', 25));
+
+        expect(status).toBe(400);
+        expect(body).toHaveProperty('message');
+        expect(body.message).toContain(
+          'A categoria precisa ter entre 1 e 30 caracteres',
+        );
+      });
+    });
   });
 
   describe('/posts (DELETE)', () => {
