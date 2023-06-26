@@ -81,6 +81,15 @@ describe('Testing Posts Route (e2e)', () => {
     });
 
     describe('Testing DTO erros in title', () => {
+      it('Testing post when dont recive title', async () => {
+        const { body, status } = await request(app.getHttpServer())
+          .post('/posts')
+          .send(serializeBodyCreate.removeKey('title'));
+
+        expect(body.message).toContain('O título não pode ser vazio');
+        expect(status).toBe(400);
+      });
+
       it('Testing when title is not a string', async () => {
         const { status, body } = await request(app.getHttpServer())
           .post('/posts')
@@ -115,6 +124,15 @@ describe('Testing Posts Route (e2e)', () => {
     });
 
     describe('Testing DTO erros in description', () => {
+      it('Testing post when dont recive description', async () => {
+        const { body, status } = await request(app.getHttpServer())
+          .post('/posts')
+          .send(serializeBodyCreate.removeKey('description'));
+
+        expect(body.message).toContain('A descrição não pode ser vazia');
+        expect(status).toBe(400);
+      });
+
       it('Testing when description is not a string', async () => {
         const { status, body } = await request(app.getHttpServer())
           .post('/posts')
@@ -149,6 +167,15 @@ describe('Testing Posts Route (e2e)', () => {
     });
 
     describe('Testing DTO erros in category', () => {
+      it('Testing post when dont recive category', async () => {
+        const { body, status } = await request(app.getHttpServer())
+          .post('/posts')
+          .send(serializeBodyCreate.removeKey('category'));
+
+        expect(body.message).toContain('A categoria não pode ser vazia');
+        expect(status).toBe(400);
+      });
+
       it('Testing when category is not a string', async () => {
         const { status, body } = await request(app.getHttpServer())
           .post('/posts')
@@ -183,6 +210,15 @@ describe('Testing Posts Route (e2e)', () => {
     });
 
     describe('Testing DTO erros in content', () => {
+      it('Testing post when dont recive content', async () => {
+        const { body, status } = await request(app.getHttpServer())
+          .post('/posts')
+          .send(serializeBodyCreate.removeKey('content'));
+
+        expect(body.message).toContain('O conteúdo não pode ser vazio');
+        expect(status).toBe(400);
+      });
+
       it('Testing when content is not a string', async () => {
         const { status, body } = await request(app.getHttpServer())
           .post('/posts')
