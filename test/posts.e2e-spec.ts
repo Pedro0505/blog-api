@@ -7,6 +7,7 @@ import { PostsService } from '../src/shared/posts/posts.service';
 import { PostsController } from '../src/shared/posts/posts.controller';
 import { mockRepositoryPost } from './mock/functions';
 import { postsMock } from './mock/data';
+import SerializeBody from './utils/SerializeBody';
 
 describe('Testing Posts Route (e2e)', () => {
   let app: INestApplication;
@@ -75,6 +76,42 @@ describe('Testing Posts Route (e2e)', () => {
       expect(body).toStrictEqual(postsMock.postCreated);
 
       jest.spyOn(global, 'Date').mockRestore();
+    });
+
+    describe('Testing DTO erros in title', () => {
+      const serializeBodyCreate = new SerializeBody(postsMock.postToCreate);
+
+      it('Testing when title is not a string', async () => {
+        const { status, body } = await request(app.getHttpServer())
+          .post('/posts')
+          .send(serializeBodyCreate.changeKeyValue('title', 1));
+
+        expect(status).toBe(400);
+        expect(body).toHaveProperty('message');
+        expect(body.message).toContain('O título precisa ser uma strig');
+      });
+
+      it('Testing when title is empty', async () => {
+        const { status, body } = await request(app.getHttpServer())
+          .post('/posts')
+          .send(serializeBodyCreate.changeKeyValue('title', ''));
+
+        expect(status).toBe(400);
+        expect(body).toHaveProperty('message');
+        expect(body.message).toContain('O título não pode ser vazio');
+      });
+
+      it('Testing when title have more than 50 char', async () => {
+        const { status, body } = await request(app.getHttpServer())
+          .post('/posts')
+          .send(serializeBodyCreate.repeatChar('title', 25));
+
+        expect(status).toBe(400);
+        expect(body).toHaveProperty('message');
+        expect(body.message).toContain(
+          'O título precisa ter entre 1 e 50 caracteres',
+        );
+      });
     });
   });
 
