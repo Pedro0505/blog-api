@@ -80,4 +80,18 @@ describe('Testing Posts Route (e2e)', () => {
       expect(body).toStrictEqual({});
     });
   });
+
+  describe('/posts (PATCH)', () => {
+    it('Testing when post is patch with success', async () => {
+      const id = postsMock.posts[0].id;
+
+      const { status, body } = await request(app.getHttpServer())
+        .patch(`/posts/?id=${id}`)
+        .send(postsMock.postToPatch);
+
+      expect(status).toBe(200);
+      expect(body.id).toBe(id);
+      expect(body).toStrictEqual(postsMock.postUpdated);
+    });
+  });
 });

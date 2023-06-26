@@ -41,4 +41,17 @@ export default {
     published: '2023-06-22T17:01:37.412Z',
     category: 'Node',
   },
+
+  postToPatch: {
+    title: 'Post do Ano 2025',
+  },
+
+  postUpdated: {
+    id: '64943ed8b27da00fb15f5aff',
+    title: 'Post do Ano 2025',
+    description: 'Lorem ipsum dolor sit amet, consectetur adipiscing 2021',
+    content: '<p>Lorem ipsum dolor sit amet, consectetur adipiscing 2021</p>',
+    category: 'Node',
+    published: '2021-06-22T11:31:35.622Z',
+  },
 };

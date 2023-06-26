@@ -6,6 +6,7 @@ const mockRepositoryPost: Partial<PostsRepository> = {
   getPostById: jest.fn().mockResolvedValue(postsMock.posts[0]),
   createPost: jest.fn().mockResolvedValue(postsMock.postCreated),
   deletePostBydId: jest.fn().mockResolvedValue(undefined),
+  updatePostById: jest.fn().mockResolvedValue(postsMock.postUpdated),
 };
 
 export default mockRepositoryPost;
