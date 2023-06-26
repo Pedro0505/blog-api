@@ -30,6 +30,12 @@ export class PostsService {
   }
 
   public async updatePostById(body: UpdatePostDto, id: string) {
-    return await this.postsRepository.updatePostById(body, id);
+    const updatedPost = await this.postsRepository.updatePostById(body, id);
+
+    if (updatedPost === null) {
+      throw new NotFoundException('Post id not found');
+    }
+
+    return updatedPost;
   }
 }
