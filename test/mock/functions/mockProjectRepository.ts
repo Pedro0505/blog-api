@@ -7,7 +7,7 @@ const mockRepositoryProjects: Partial<ProjectsRepository> = {
   deleteProjectBydId: jest
     .fn()
     .mockResolvedValueOnce(null)
-    .mockResolvedValue(undefined),
+    .mockResolvedValue(projectsMock.projects[0]),
   updateProjectById: jest
     .fn()
     .mockResolvedValueOnce(null)
