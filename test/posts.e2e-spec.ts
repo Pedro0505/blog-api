@@ -181,6 +181,28 @@ describe('Testing Posts Route (e2e)', () => {
         );
       });
     });
+
+    describe('Testing DTO erros in content', () => {
+      it('Testing when content is not a string', async () => {
+        const { status, body } = await request(app.getHttpServer())
+          .post('/posts')
+          .send(serializeBodyCreate.changeKeyValue('content', 1));
+
+        expect(status).toBe(400);
+        expect(body).toHaveProperty('message');
+        expect(body.message).toContain('O conteúdo precisa ser uma strig');
+      });
+
+      it('Testing when content is empty', async () => {
+        const { status, body } = await request(app.getHttpServer())
+          .post('/posts')
+          .send(serializeBodyCreate.changeKeyValue('content', ''));
+
+        expect(status).toBe(400);
+        expect(body).toHaveProperty('message');
+        expect(body.message).toContain('O conteúdo não pode ser vazio');
+      });
+    });
   });
 
   describe('/posts (DELETE)', () => {
