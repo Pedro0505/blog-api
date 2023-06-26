@@ -94,6 +94,18 @@ describe('Testing Posts Route (e2e)', () => {
   });
 
   describe('/posts (PATCH)', () => {
+    const inexistentId = '6499779d633d9e256958fb13';
+
+    it('Testing patch with id which not exist', async () => {
+      const { status, body } = await request(app.getHttpServer())
+        .patch(`/posts/?id=${inexistentId}`)
+        .send(postsMock.postToPatch);
+
+      expect(body).toHaveProperty('message');
+      expect(body.message).toBe('Post id not found');
+      expect(status).toBe(404);
+    });
+
     it('Testing when post is patch with success', async () => {
       const id = postsMock.posts[0].id;
 
