@@ -4,33 +4,21 @@ import * as request from 'supertest';
 import { ProjectsService } from '../src/shared/projects/projects.service';
 import { ProjectsRepository } from '../src/shared/projects/projects.repository';
 import { ProjectsController } from '../src/shared/projects/projects.controller';
-import { projectsMock } from './mock';
+import { projectsMock } from './mock/data';
 import SerializeBody from './utils/SerializeBody';
 import ValidatorMiddleware from '../src/shared/middleware/Validator.middleware';
+import mockRepositoryProjects from './mock/functions/mockProjectRepository';
 
 describe('Testing Projects Route (e2e)', () => {
   let app: INestApplication;
 
   beforeAll(async () => {
-    const mockRepository: Partial<ProjectsRepository> = {
-      getAllProjects: jest.fn().mockResolvedValue(projectsMock.projects),
-      createProject: jest.fn().mockResolvedValue(projectsMock.projectCreated),
-      deleteProjectBydId: jest
-        .fn()
-        .mockResolvedValueOnce(null)
-        .mockResolvedValue(undefined),
-      updateProjectById: jest
-        .fn()
-        .mockResolvedValueOnce(null)
-        .mockResolvedValue(projectsMock.projectUpdated),
-    };
-
     const moduleFixture: TestingModule = await Test.createTestingModule({
       controllers: [ProjectsController],
       providers: [ProjectsRepository, ProjectsService],
     })
       .overrideProvider(ProjectsRepository)
-      .useValue(mockRepository)
+      .useValue(mockRepositoryProjects)
       .compile();
 
     app = moduleFixture.createNestApplication();

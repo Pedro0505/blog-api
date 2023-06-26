@@ -25,7 +25,7 @@ export class PostsRepository {
   }
 
   public async deletePostBydId(id: string) {
-    await this.postsModel.deleteOne({ _id: id });
+    return await this.postsModel.findOneAndDelete({ _id: id });
   }
 
   public async updatePostById(body: UpdatePostDto, id: string) {

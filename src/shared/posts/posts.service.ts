@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PostsRepository } from './posts.repository';
 import { CreatePostDto } from './dto/CreatePost.dto';
 import { UpdatePostDto } from './dto/UpdatePost.dto';
@@ -22,10 +22,20 @@ export class PostsService {
   }
 
   public async deletePostBydId(id: string) {
-    await this.postsRepository.deletePostBydId(id);
+    const postDeleted = await this.postsRepository.deletePostBydId(id);
+
+    if (postDeleted === null) {
+      throw new NotFoundException('Post id not found');
+    }
   }
 
   public async updatePostById(body: UpdatePostDto, id: string) {
-    return await this.postsRepository.updatePostById(body, id);
+    const updatedPost = await this.postsRepository.updatePostById(body, id);
+
+    if (updatedPost === null) {
+      throw new NotFoundException('Post id not found');
+    }
+
+    return updatedPost;
   }
 }
