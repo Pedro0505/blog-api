@@ -69,6 +69,8 @@ describe('Testing Posts Route (e2e)', () => {
   });
 
   describe('/posts (DELETE)', () => {
+    const inexistentId = '6499779d633d9e256958fb13';
+
     it('Testing when post is delete with success', async () => {
       const id = postsMock.posts[0].id;
 
@@ -78,6 +80,16 @@ describe('Testing Posts Route (e2e)', () => {
 
       expect(status).toBe(204);
       expect(body).toStrictEqual({});
+    });
+
+    it('Testing delete with id which not exist', async () => {
+      const { status, body } = await request(app.getHttpServer()).delete(
+        `/posts/?id=${inexistentId}`,
+      );
+
+      expect(body).toHaveProperty('message');
+      expect(body.message).toBe('Post id not found');
+      expect(status).toBe(404);
     });
   });
 
