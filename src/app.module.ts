@@ -26,5 +26,10 @@ export class AppModule implements NestModule {
       .apply(ValidatorMiddleware)
       .exclude({ path: '/projects', method: RequestMethod.POST })
       .forRoutes('/projects');
+
+    consumer
+      .apply(ValidatorMiddleware)
+      .exclude({ path: '/posts', method: RequestMethod.POST })
+      .forRoutes('/posts');
   }
 }
