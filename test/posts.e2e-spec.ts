@@ -310,5 +310,146 @@ describe('Testing Posts Route (e2e)', () => {
       expect(body).toHaveProperty('message');
       expect(body.message).toBe('Invalid id');
     });
+
+    describe('Testing DTO erros in title', () => {
+      const serializeBodyUpdate = new SerializeBody({
+        title: 'Post do ano 2021',
+      });
+
+      it('Testing when title is not a string', async () => {
+        const { status, body } = await request(app.getHttpServer())
+          .patch('/posts')
+          .send(serializeBodyUpdate.changeKeyValue('title', 1));
+
+        expect(status).toBe(400);
+        expect(body).toHaveProperty('message');
+        expect(body.message).toContain('O título precisa ser uma strig');
+      });
+
+      it('Testing when title is empty', async () => {
+        const { status, body } = await request(app.getHttpServer())
+          .patch('/posts')
+          .send(serializeBodyUpdate.changeKeyValue('title', ''));
+
+        expect(status).toBe(400);
+        expect(body).toHaveProperty('message');
+        expect(body.message).toContain('O título não pode ser vazio');
+      });
+
+      it('Testing when title have more than 50 char', async () => {
+        const { status, body } = await request(app.getHttpServer())
+          .patch('/posts')
+          .send(serializeBodyUpdate.repeatChar('title', 25));
+
+        expect(status).toBe(400);
+        expect(body).toHaveProperty('message');
+        expect(body.message).toContain(
+          'O título precisa ter entre 1 e 50 caracteres',
+        );
+      });
+    });
+
+    describe('Testing DTO erros in description', () => {
+      const serializeBodyUpdate = new SerializeBody({
+        description: 'Lorem ipsum dolor sit amet, consectetur adipiscing 2022',
+      });
+
+      it('Testing when description is not a string', async () => {
+        const { status, body } = await request(app.getHttpServer())
+          .patch('/posts')
+          .send(serializeBodyUpdate.changeKeyValue('description', 1));
+
+        expect(status).toBe(400);
+        expect(body).toHaveProperty('message');
+        expect(body.message).toContain('A descrição precisa ser uma strig');
+      });
+
+      it('Testing when description is empty', async () => {
+        const { status, body } = await request(app.getHttpServer())
+          .patch('/posts')
+          .send(serializeBodyUpdate.changeKeyValue('description', ''));
+
+        expect(status).toBe(400);
+        expect(body).toHaveProperty('message');
+        expect(body.message).toContain('A descrição não pode ser vazia');
+      });
+
+      it('Testing when description have more than 50 char', async () => {
+        const { status, body } = await request(app.getHttpServer())
+          .patch('/posts')
+          .send(serializeBodyUpdate.repeatChar('description', 25));
+
+        expect(status).toBe(400);
+        expect(body).toHaveProperty('message');
+        expect(body.message).toContain(
+          'A descrição precisa ter entre 1 e 255 caracteres',
+        );
+      });
+    });
+
+    describe('Testing DTO erros in category', () => {
+      const serializeBodyUpdate = new SerializeBody({
+        category: 'Node',
+      });
+
+      it('Testing when category is not a string', async () => {
+        const { status, body } = await request(app.getHttpServer())
+          .patch('/posts')
+          .send(serializeBodyUpdate.changeKeyValue('category', 1));
+
+        expect(status).toBe(400);
+        expect(body).toHaveProperty('message');
+        expect(body.message).toContain('A categoria precisa ser uma strig');
+      });
+
+      it('Testing when category is empty', async () => {
+        const { status, body } = await request(app.getHttpServer())
+          .patch('/posts')
+          .send(serializeBodyUpdate.changeKeyValue('category', ''));
+
+        expect(status).toBe(400);
+        expect(body).toHaveProperty('message');
+        expect(body.message).toContain('A categoria não pode ser vazia');
+      });
+
+      it('Testing when category have more than 50 char', async () => {
+        const { status, body } = await request(app.getHttpServer())
+          .patch('/posts')
+          .send(serializeBodyUpdate.repeatChar('category', 25));
+
+        expect(status).toBe(400);
+        expect(body).toHaveProperty('message');
+        expect(body.message).toContain(
+          'A categoria precisa ter entre 1 e 30 caracteres',
+        );
+      });
+    });
+
+    describe('Testing DTO erros in content', () => {
+      const serializeBodyUpdate = new SerializeBody({
+        content:
+          '<p>Lorem ipsum dolor sit amet, consectetur adipiscing 2022</p>',
+      });
+
+      it('Testing when content is not a string', async () => {
+        const { status, body } = await request(app.getHttpServer())
+          .patch('/posts')
+          .send(serializeBodyUpdate.changeKeyValue('content', 1));
+
+        expect(status).toBe(400);
+        expect(body).toHaveProperty('message');
+        expect(body.message).toContain('O conteúdo precisa ser uma strig');
+      });
+
+      it('Testing when content is empty', async () => {
+        const { status, body } = await request(app.getHttpServer())
+          .patch('/posts')
+          .send(serializeBodyUpdate.changeKeyValue('content', ''));
+
+        expect(status).toBe(400);
+        expect(body).toHaveProperty('message');
+        expect(body.message).toContain('O conteúdo não pode ser vazio');
+      });
+    });
   });
 });
