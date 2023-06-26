@@ -49,6 +49,16 @@ describe('Testing Posts Route (e2e)', () => {
       expect(body).toStrictEqual(postsMock.posts[0]);
       expect(body.id).toBe(id);
     });
+
+    it('Testing get with invalid id', async () => {
+      const { status, body } = await request(app.getHttpServer()).get(
+        '/posts/?id=123',
+      );
+
+      expect(status).toBe(400);
+      expect(body).toHaveProperty('message');
+      expect(body.message).toBe('Invalid id');
+    });
   });
 
   describe('/posts (POST)', () => {
@@ -91,6 +101,16 @@ describe('Testing Posts Route (e2e)', () => {
       expect(status).toBe(204);
       expect(body).toStrictEqual({});
     });
+
+    it('Testing delete with invalid id', async () => {
+      const { status, body } = await request(app.getHttpServer()).delete(
+        '/posts/?id=123',
+      );
+
+      expect(status).toBe(400);
+      expect(body).toHaveProperty('message');
+      expect(body.message).toBe('Invalid id');
+    });
   });
 
   describe('/posts (PATCH)', () => {
@@ -116,6 +136,16 @@ describe('Testing Posts Route (e2e)', () => {
       expect(status).toBe(200);
       expect(body.id).toBe(id);
       expect(body).toStrictEqual(postsMock.postUpdated);
+    });
+
+    it('Testing patch with invalid id', async () => {
+      const { status, body } = await request(app.getHttpServer())
+        .patch('/posts/?id=123')
+        .send(postsMock.postToPatch);
+
+      expect(status).toBe(400);
+      expect(body).toHaveProperty('message');
+      expect(body.message).toBe('Invalid id');
     });
   });
 });
