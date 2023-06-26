@@ -63,6 +63,8 @@ describe('Testing Posts Route (e2e)', () => {
   });
 
   describe('/posts (POST)', () => {
+    const serializeBodyCreate = new SerializeBody(postsMock.postToCreate);
+
     it('Testing post creating with success', async () => {
       const mockDate = new Date(postsMock.postCreated.published);
 
@@ -79,8 +81,6 @@ describe('Testing Posts Route (e2e)', () => {
     });
 
     describe('Testing DTO erros in title', () => {
-      const serializeBodyCreate = new SerializeBody(postsMock.postToCreate);
-
       it('Testing when title is not a string', async () => {
         const { status, body } = await request(app.getHttpServer())
           .post('/posts')
@@ -110,6 +110,40 @@ describe('Testing Posts Route (e2e)', () => {
         expect(body).toHaveProperty('message');
         expect(body.message).toContain(
           'O título precisa ter entre 1 e 50 caracteres',
+        );
+      });
+    });
+
+    describe('Testing DTO erros in description', () => {
+      it('Testing when description is not a string', async () => {
+        const { status, body } = await request(app.getHttpServer())
+          .post('/posts')
+          .send(serializeBodyCreate.changeKeyValue('description', 1));
+
+        expect(status).toBe(400);
+        expect(body).toHaveProperty('message');
+        expect(body.message).toContain('A descrição precisa ser uma strig');
+      });
+
+      it('Testing when description is empty', async () => {
+        const { status, body } = await request(app.getHttpServer())
+          .post('/posts')
+          .send(serializeBodyCreate.changeKeyValue('description', ''));
+
+        expect(status).toBe(400);
+        expect(body).toHaveProperty('message');
+        expect(body.message).toContain('A descrição não pode ser vazia');
+      });
+
+      it('Testing when description have more than 50 char', async () => {
+        const { status, body } = await request(app.getHttpServer())
+          .post('/posts')
+          .send(serializeBodyCreate.repeatChar('description', 25));
+
+        expect(status).toBe(400);
+        expect(body).toHaveProperty('message');
+        expect(body.message).toContain(
+          'A descrição precisa ter entre 1 e 255 caracteres',
         );
       });
     });
