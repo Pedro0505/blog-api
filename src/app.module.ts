@@ -8,8 +8,10 @@ import { ConfigModule } from '@nestjs/config';
 import { PostsModule } from './shared/posts/posts.module';
 import { ProjectsModule } from './shared/projects/projects.module';
 import { SeedsModule } from './db/seeders/seed.module';
-import ValidatorMiddleware from './shared/middleware/Validator.middleware';
+import ValidatorMiddleware from './shared/middleware/validator.middleware';
 import { UserModule } from './shared/user/user.module';
+import AuthMiddleware from './shared/middleware/auth.middleware';
+import { UtilsModule } from './shared/utils/utils.module';
 
 @Module({
   imports: [
@@ -17,6 +19,7 @@ import { UserModule } from './shared/user/user.module';
     ProjectsModule,
     UserModule,
     SeedsModule,
+    UtilsModule,
     ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
   ],
   controllers: [],
@@ -32,6 +35,16 @@ export class AppModule implements NestModule {
     consumer
       .apply(ValidatorMiddleware)
       .exclude({ path: '/posts', method: RequestMethod.POST })
+      .forRoutes('/posts');
+
+    consumer
+      .apply(AuthMiddleware)
+      .exclude({ path: '/projects', method: RequestMethod.GET })
+      .forRoutes('/projects');
+
+    consumer
+      .apply(AuthMiddleware)
+      .exclude({ path: '/posts', method: RequestMethod.GET })
       .forRoutes('/posts');
   }
 }
