@@ -9,11 +9,13 @@ import { PostsModule } from './shared/posts/posts.module';
 import { ProjectsModule } from './shared/projects/projects.module';
 import { SeedsModule } from './db/seeders/seed.module';
 import ValidatorMiddleware from './shared/middleware/Validator.middleware';
+import { UserModule } from './shared/user/user.module';
 
 @Module({
   imports: [
     PostsModule,
     ProjectsModule,
+    UserModule,
     SeedsModule,
     ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
   ],
