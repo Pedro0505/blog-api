@@ -3,6 +3,7 @@ import { PostsSchema } from './model/posts.model';
 import { ProjectsSchema } from './model/projects.model';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import ModelNames from '../constants/ModelNames';
+import { UserSchema } from './model/user.model';
 
 export const modelForFeature = MongooseModule.forFeature([
   {
@@ -12,6 +13,10 @@ export const modelForFeature = MongooseModule.forFeature([
   {
     name: ModelNames.PROJECTS,
     schema: ProjectsSchema,
+  },
+  {
+    name: ModelNames.USER,
+    schema: UserSchema,
   },
 ]);
 
