@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
-import ValidatorMiddleware from '../src/shared/middleware/Validator.middleware';
+import ValidatorMiddleware from '../src/shared/middleware/validator.middleware';
 import { PostsRepository } from '../src/shared/posts/posts.repository';
 import { PostsService } from '../src/shared/posts/posts.service';
 import { PostsController } from '../src/shared/posts/posts.controller';

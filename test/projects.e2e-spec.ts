@@ -6,7 +6,7 @@ import { ProjectsRepository } from '../src/shared/projects/projects.repository';
 import { ProjectsController } from '../src/shared/projects/projects.controller';
 import { projectsMock } from './mock/data';
 import SerializeBody from './utils/SerializeBody';
-import ValidatorMiddleware from '../src/shared/middleware/Validator.middleware';
+import ValidatorMiddleware from '../src/shared/middleware/validator.middleware';
 import mockRepositoryProjects from './mock/functions/mockProjectRepository';
 
 describe('Testing Projects Route (e2e)', () => {

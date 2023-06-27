@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserRepository } from './user.repository';
 import { CreateUserDto } from './dto/CreateUser.dto';
 import { LoginUserDto } from './dto/LoginUser.dto';
-import { PassCryptography } from '../utils/PassCryptography';
+import { PassCryptography } from '../utils/passCryptography';
 import { AuthService } from '../auth/auth.service';
 
 @Injectable()

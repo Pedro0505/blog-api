@@ -3,7 +3,7 @@ import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { UserRepository } from './user.repository';
 import { modelForFeature, modelForRoot } from 'src/db/model.db';
-import { UtilsModule } from '../utils/Utils.module';
+import { UtilsModule } from '../utils/utils.module';
 import { AuthModule } from '../auth/auth.module';
 
 @Module({
