@@ -22,7 +22,9 @@ export class UserService {
 
     user.password = newPass;
 
-    return this.userRepository.createUser(user);
+    const newUser = await this.userRepository.createUser(user);
+
+    return { username: newUser.username, id: newUser._id };
   }
 
   public async login(user: LoginUserDto) {
