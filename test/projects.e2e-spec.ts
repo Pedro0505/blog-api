@@ -1,34 +1,44 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
-import { ProjectsService } from '../src/shared/projects/projects.service';
-import { ProjectsRepository } from '../src/shared/projects/projects.repository';
-import { ProjectsController } from '../src/shared/projects/projects.controller';
 import { projectsMock } from './mock/data';
 import SerializeBody from './utils/SerializeBody';
-import ValidatorMiddleware from '../src/shared/middleware/validator.middleware';
-import mockRepositoryProjects from './mock/functions/mockProjectRepository';
+import { AppModule } from '../src/app.module';
+import { MongooseConnections } from './utils/MongooseConnections';
 
 describe('Testing Projects Route (e2e)', () => {
   let app: INestApplication;
+  const mongooseConnections = new MongooseConnections();
+  const originalEnv = process.env;
 
   beforeAll(async () => {
+    jest.resetModules();
+    process.env = {
+      ...originalEnv,
+      NODE_ENV: 'TEST',
+    };
+
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      controllers: [ProjectsController],
-      providers: [ProjectsRepository, ProjectsService],
-    })
-      .overrideProvider(ProjectsRepository)
-      .useValue(mockRepositoryProjects)
-      .compile();
+      imports: [AppModule],
+    }).compile();
 
     app = moduleFixture.createNestApplication();
     app.useGlobalPipes(new ValidationPipe());
-    app.use(new ValidatorMiddleware().use);
     await app.init();
   });
 
-  afterAll(() => {
+  afterAll(async () => {
     jest.restoreAllMocks();
+    process.env = originalEnv;
+    await app.close();
+  });
+
+  beforeEach(async () => {
+    await mongooseConnections.insert('projects', projectsMock.projects);
+  });
+
+  afterEach(async () => {
+    await mongooseConnections.remove('projects');
   });
 
   it('/projects (GET)', async () => {
@@ -36,8 +46,14 @@ describe('Testing Projects Route (e2e)', () => {
       '/projects',
     );
 
-    expect(body).toStrictEqual(projectsMock.projects);
     expect(status).toBe(200);
+    expect(body).toHaveLength(2);
+    expect(body).toBeInstanceOf(Array);
+    body.map((e, i) => {
+      expect(e.name).toBe(projectsMock.projects[i].name);
+      expect(e.url).toBe(projectsMock.projects[i].url);
+      expect(e.description).toBe(projectsMock.projects[i].description);
+    });
   });
 
   describe('/projects (POST)', () => {
@@ -48,8 +64,11 @@ describe('Testing Projects Route (e2e)', () => {
         .post('/projects')
         .send(projectsMock.projectToCreate);
 
-      expect(body).toStrictEqual(projectsMock.projectCreated);
       expect(status).toBe(201);
+      expect(body.id).toBeDefined();
+      expect(body.name).toBe(projectsMock.projectCreated.name);
+      expect(body.description).toBe(projectsMock.projectCreated.description);
+      expect(body.url).toBe(projectsMock.projectCreated.url);
     });
 
     describe('Testing name DTO erros', () => {
@@ -136,8 +155,6 @@ describe('Testing Projects Route (e2e)', () => {
   });
 
   describe('/projects (DELETE)', () => {
-    const id = projectsMock.projects[0].id;
-
     it('Testing delete with id which not exist', async () => {
       const { body, status } = await request(app.getHttpServer()).delete(
         '/projects?id=64934e56e1ed93d36835277b',
@@ -159,8 +176,10 @@ describe('Testing Projects Route (e2e)', () => {
     });
 
     it('Testing delete with sucess', async () => {
+      const { body: get } = await request(app.getHttpServer()).get('/projects');
+
       const { body, status } = await request(app.getHttpServer()).delete(
-        `/projects?id=${id}`,
+        `/projects?id=${get[0].id}`,
       );
 
       expect(body).toEqual({});
@@ -169,8 +188,6 @@ describe('Testing Projects Route (e2e)', () => {
   });
 
   describe('/projects (PATCH)', () => {
-    const id = projectsMock.projects[0].id;
-
     it('Testing patch with id that not exist', async () => {
       const { body, status } = await request(app.getHttpServer())
         .patch('/projects?id=64934e56e1ed93d36835277b')
@@ -192,12 +209,16 @@ describe('Testing Projects Route (e2e)', () => {
     });
 
     it('Testing patch with sucess', async () => {
+      const { body: get } = await request(app.getHttpServer()).get('/projects');
+
       const { body, status } = await request(app.getHttpServer())
-        .patch(`/projects?id=${id}`)
+        .patch(`/projects?id=${get[0].id}`)
         .send(projectsMock.projectToPatch);
 
-      expect(body).toEqual(projectsMock.projectUpdated);
-      expect(id).toBe(projectsMock.projectUpdated.id);
+      expect(body.name).toEqual(projectsMock.projectUpdated.name);
+      expect(body.description).toEqual(projectsMock.projectUpdated.description);
+      expect(body.url).toEqual(projectsMock.projectUpdated.url);
+      expect(get[0].id).toBe(body.id);
       expect(status).toBe(200);
     });
 
@@ -205,6 +226,11 @@ describe('Testing Projects Route (e2e)', () => {
       const serializeBodyPatch = new SerializeBody({ name: 'Projeto 1' });
 
       it('Testing patch when name have more than 50 characters', async () => {
+        const { body: get } = await request(app.getHttpServer()).get(
+          '/projects',
+        );
+        const id = get[0].id;
+
         const { body, status } = await request(app.getHttpServer())
           .patch(`/projects?id=${id}`)
           .send(serializeBodyPatch.repeatChar('name', 20));
@@ -216,6 +242,11 @@ describe('Testing Projects Route (e2e)', () => {
       });
 
       it("Testing patch when name isn't a string", async () => {
+        const { body: get } = await request(app.getHttpServer()).get(
+          '/projects',
+        );
+        const id = get[0].id;
+
         const { body, status } = await request(app.getHttpServer())
           .patch(`/projects?id=${id}`)
           .send(serializeBodyPatch.changeKeyValue('name', 1));
@@ -229,6 +260,11 @@ describe('Testing Projects Route (e2e)', () => {
       const serializeBodyPatch = new SerializeBody({ description: 'Good' });
 
       it('Testing patch when description have more than 255 characters', async () => {
+        const { body: get } = await request(app.getHttpServer()).get(
+          '/projects',
+        );
+        const id = get[0].id;
+
         const { body, status } = await request(app.getHttpServer())
           .patch(`/projects?id=${id}`)
           .send(serializeBodyPatch.repeatChar('description', 65));
@@ -240,6 +276,11 @@ describe('Testing Projects Route (e2e)', () => {
       });
 
       it("Testing patch when description isn't a string", async () => {
+        const { body: get } = await request(app.getHttpServer()).get(
+          '/projects',
+        );
+        const id = get[0].id;
+
         const { body, status } = await request(app.getHttpServer())
           .patch(`/projects?id=${id}`)
           .send(serializeBodyPatch.changeKeyValue('description', 1));
@@ -264,6 +305,11 @@ describe('Testing Projects Route (e2e)', () => {
       });
 
       it("Testing patch when url isn't a string", async () => {
+        const { body: get } = await request(app.getHttpServer()).get(
+          '/projects',
+        );
+        const id = get[0].id;
+
         const { body, status } = await request(app.getHttpServer())
           .patch(`/projects?id=${id}`)
           .send(serializeBodyPatch.changeKeyValue('url', 1));
