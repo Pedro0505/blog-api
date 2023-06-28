@@ -92,6 +92,16 @@ describe('Testing Posts Route (e2e)', () => {
       expect(body.id).toBe(id);
     });
 
+    it('Testing get by id with id which not exist', async () => {
+      const { status, body } = await request(app.getHttpServer()).get(
+        '/posts/?id=64943e04690a415361309207',
+      );
+
+      expect(status).toBe(404);
+      expect(body.message).toBeDefined();
+      expect(body.message).toBe('Post não encontrado');
+    });
+
     it('Testing get with invalid id', async () => {
       const { status, body } = await request(app.getHttpServer()).get(
         '/posts/?id=123',
