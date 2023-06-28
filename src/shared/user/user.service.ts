@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { UserRepository } from './user.repository';
 import { CreateUserDto } from './dto/CreateUser.dto';
 import { LoginUserDto } from './dto/LoginUser.dto';
@@ -16,6 +20,12 @@ export class UserService {
   public async registerUser(user: CreateUserDto, ownerKey: string) {
     if (ownerKey !== process.env.OWNER_KEY) {
       throw new UnauthorizedException('User unauthorized');
+    }
+
+    const getUser = await this.userRepository.getUserByUsername(user.username);
+
+    if (!!getUser) {
+      throw new ConflictException('Usuário já existe');
     }
 
     const newPass = await this.passCryptography.bcryptEncrypt(user.password);
