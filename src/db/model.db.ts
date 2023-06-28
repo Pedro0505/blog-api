@@ -23,7 +23,12 @@ export const modelForFeature = MongooseModule.forFeature([
 export const modelForRoot = MongooseModule.forRootAsync({
   imports: [ConfigModule],
   inject: [ConfigService],
-  useFactory: async (config: ConfigService) => ({
-    uri: config.get<string>('DATABASE_URL'),
-  }),
+  useFactory: async (config: ConfigService) => {
+    const nodeEnv = config.get<string>('NODE_ENV');
+    const dbName = nodeEnv === 'DEV' ? 'DATABASE_URL' : 'DATABASE_URL_TEST';
+    const uri = config.get<string>(dbName);
+    return {
+      uri,
+    };
+  },
 });
