@@ -1,53 +1,78 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
-import ValidatorMiddleware from '../src/shared/middleware/validator.middleware';
-import { PostsRepository } from '../src/shared/posts/posts.repository';
-import { PostsService } from '../src/shared/posts/posts.service';
-import { PostsController } from '../src/shared/posts/posts.controller';
-import { mockRepositoryPost } from './mock/functions';
 import { postsMock } from './mock/data';
 import SerializeBody from './utils/SerializeBody';
+import { AppModule } from '../src/app.module';
+import { MongooseConnections } from './utils/MongooseConnections';
 
 describe('Testing Posts Route (e2e)', () => {
   let app: INestApplication;
+  const originalEnv = process.env;
+  const mongooseConnections = new MongooseConnections();
 
   beforeAll(async () => {
+    jest.resetModules();
+    process.env = {
+      ...originalEnv,
+      NODE_ENV: 'TEST',
+    };
+
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      controllers: [PostsController],
-      providers: [PostsRepository, PostsService],
-    })
-      .overrideProvider(PostsRepository)
-      .useValue(mockRepositoryPost)
-      .compile();
+      imports: [AppModule],
+    }).compile();
 
     app = moduleFixture.createNestApplication();
     app.useGlobalPipes(new ValidationPipe());
-    app.use(new ValidatorMiddleware().use);
     await app.init();
   });
 
-  afterAll(() => {
+  afterAll(async () => {
+    process.env = originalEnv;
+    await app.close();
     jest.restoreAllMocks();
+  });
+
+  beforeEach(async () => {
+    await mongooseConnections.insert('posts', postsMock.posts);
+  });
+
+  afterEach(async () => {
+    await mongooseConnections.remove('posts');
   });
 
   it('/posts (GET)', async () => {
     const { status, body } = await request(app.getHttpServer()).get('/posts');
 
     expect(status).toBe(200);
-    expect(body).toStrictEqual(postsMock.posts);
+    expect(body).toHaveLength(3);
+    expect(body).toBeInstanceOf(Array);
+    body.map((e, i) => {
+      expect(e.id).toBeDefined();
+      expect(e.title).toBe(postsMock.posts[i].title);
+      expect(e.description).toBe(postsMock.posts[i].description);
+      expect(e.category).toBe(postsMock.posts[i].category);
+      expect(e.published).toBe(postsMock.posts[i].published);
+      expect(e.content).toBe(postsMock.posts[i].content);
+    });
   });
 
   describe('/posts/?id (GET)', () => {
     it('Testing when get a post with success', async () => {
-      const id = postsMock.posts[0].id;
+      const { body: get } = await request(app.getHttpServer()).get('/posts');
+      const id = get[0].id;
 
       const { status, body } = await request(app.getHttpServer()).get(
         `/posts/?id=${id}`,
       );
 
       expect(status).toBe(200);
-      expect(body).toStrictEqual(postsMock.posts[0]);
+      expect(body.id).toBeDefined();
+      expect(body.title).toBe(postsMock.posts[0].title);
+      expect(body.description).toBe(postsMock.posts[0].description);
+      expect(body.category).toBe(postsMock.posts[0].category);
+      expect(body.published).toBe(postsMock.posts[0].published);
+      expect(body.content).toBe(postsMock.posts[0].content);
       expect(body.id).toBe(id);
     });
 
@@ -66,18 +91,20 @@ describe('Testing Posts Route (e2e)', () => {
     const serializeBodyCreate = new SerializeBody(postsMock.postToCreate);
 
     it('Testing post creating with success', async () => {
-      const mockDate = new Date(postsMock.postCreated.published);
-
-      jest.spyOn(global, 'Date').mockImplementation(() => mockDate);
-
       const { status, body } = await request(app.getHttpServer())
         .post('/posts')
         .send(postsMock.postToCreate);
 
-      expect(status).toBe(201);
-      expect(body).toStrictEqual(postsMock.postCreated);
+      const date = new Date(body.published);
+      const testDate = !isNaN(date.getTime());
 
-      jest.spyOn(global, 'Date').mockRestore();
+      expect(status).toBe(201);
+      expect(body.id).toBeDefined();
+      expect(body.category).toStrictEqual(postsMock.postCreated.category);
+      expect(body.content).toStrictEqual(postsMock.postCreated.content);
+      expect(body.description).toStrictEqual(postsMock.postCreated.description);
+      expect(body.title).toStrictEqual(postsMock.postCreated.title);
+      expect(testDate).toBeTruthy();
     });
 
     describe('Testing DTO erros in title', () => {
@@ -255,7 +282,8 @@ describe('Testing Posts Route (e2e)', () => {
     });
 
     it('Testing when post is delete with success', async () => {
-      const id = postsMock.posts[0].id;
+      const { body: get } = await request(app.getHttpServer()).get('/posts');
+      const id = get[0].id;
 
       const { status, body } = await request(app.getHttpServer()).delete(
         `/posts/?id=${id}`,
@@ -290,15 +318,20 @@ describe('Testing Posts Route (e2e)', () => {
     });
 
     it('Testing when post is patch with success', async () => {
-      const id = postsMock.posts[0].id;
+      const { body: get } = await request(app.getHttpServer()).get('/posts');
+      const id = get[0].id;
 
       const { status, body } = await request(app.getHttpServer())
         .patch(`/posts/?id=${id}`)
         .send(postsMock.postToPatch);
 
       expect(status).toBe(200);
-      expect(body.id).toBe(id);
-      expect(body).toStrictEqual(postsMock.postUpdated);
+      expect(body.id).toBeDefined();
+      expect(body.category).toStrictEqual(postsMock.postUpdated.category);
+      expect(body.content).toStrictEqual(postsMock.postUpdated.content);
+      expect(body.description).toStrictEqual(postsMock.postUpdated.description);
+      expect(body.title).toStrictEqual(postsMock.postUpdated.title);
+      expect(body.published).toStrictEqual(postsMock.postUpdated.published);
     });
 
     it('Testing patch with invalid id', async () => {
