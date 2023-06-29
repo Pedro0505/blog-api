@@ -133,4 +133,87 @@ describe('Testing Auth (e2e)', () => {
       });
     });
   });
+
+  describe('Testing auth in DELETE routes', () => {
+    describe('Testing in project route', () => {
+      it('Testing when is successfully authenticated', async () => {
+        const { body: get } = await request(app.getHttpServer()).get(
+          '/projects',
+        );
+
+        const { body, status } = await request(app.getHttpServer())
+          .delete(`/projects/?id=${get[0].id}`)
+          .set('Authorization', token);
+
+        expect(status).toBe(204);
+        expect(body).toStrictEqual({});
+      });
+
+      it('Testing when authentication data are invalid', async () => {
+        const { body: get } = await request(app.getHttpServer()).get(
+          '/projects',
+        );
+
+        const { body, status } = await request(app.getHttpServer())
+          .delete(`/projects/?id=${get[0].id}`)
+          .set('Authorization', authMock.invalidToken);
+
+        expect(status).toBe(401);
+        expect(body.message).toBeDefined();
+        expect(body.message).toBe('Expired or invalid token');
+      });
+
+      it('Testing when Authorization is not set', async () => {
+        const { body: get } = await request(app.getHttpServer()).get(
+          '/projects',
+        );
+
+        const { body, status } = await request(app.getHttpServer())
+          .delete(`/projects/?id=${get[0].id}`)
+          .send(projectsMock.projectToCreate);
+
+        expect(status).toBe(401);
+        expect(body.message).toBeDefined();
+        expect(body.message).toBe('Token not found');
+      });
+    });
+
+    describe('Testing in posts route', () => {
+      it('Testing when is successfully authenticated', async () => {
+        const { body: get } = await request(app.getHttpServer()).get('/posts');
+
+        const { body, status } = await request(app.getHttpServer())
+          .delete(`/posts/?id=${get[0].id}`)
+          .set('Authorization', token)
+          .send(postsMock.postToCreate);
+
+        expect(status).toBe(204);
+        expect(body).toStrictEqual({});
+      });
+      it('Testing when authentication data are invalid', async () => {
+        const { body: get } = await request(app.getHttpServer()).get('/posts');
+
+        const { body, status } = await request(app.getHttpServer())
+          .delete(`/posts/?id=${get[0].id}`)
+          .set('Authorization', authMock.invalidToken)
+          .send(postsMock.postToCreate);
+
+        expect(status).toBe(401);
+        expect(body.message).toBeDefined();
+        expect(body.message).toBe('Expired or invalid token');
+      });
+
+      it('Testing when Authorization is not set', async () => {
+        const { body: get } = await request(app.getHttpServer()).get('/posts');
+
+        const { body, status } = await request(app.getHttpServer())
+          .delete(`/posts/?id=${get[0].id}`)
+          .send(postsMock.postToCreate);
+
+        expect(status).toBe(401);
+        expect(body.message).toBeDefined();
+        expect(body.message).toBe('Token not found');
+      });
+    });
+  });
 });
