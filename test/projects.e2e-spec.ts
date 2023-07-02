@@ -11,10 +11,12 @@ describe('Testing Projects Route (e2e)', () => {
   let token: string;
   const mongooseConnections = new MongooseConnections();
   const originalEnv = process.env;
+  const fakeUser = {
+    username: 'Jonh Doe',
+    password: 'minhaIncrivelSenha1',
+  };
 
   beforeAll(async () => {
-    jest.resetModules();
-
     process.env = {
       ...originalEnv,
       NODE_ENV: 'TEST',
@@ -30,8 +32,6 @@ describe('Testing Projects Route (e2e)', () => {
     app.useGlobalPipes(new ValidationPipe());
     await app.init();
 
-    const fakeUser = { username: 'Jonh Doe', password: 'minhaIncrivelSenha1' };
-
     await request(app.getHttpServer())
       .post('/user/register')
       .send(fakeUser)
@@ -42,22 +42,17 @@ describe('Testing Projects Route (e2e)', () => {
       .send(fakeUser);
 
     token = body.token;
-  });
+
+    await mongooseConnections.insert('projects', projectsMock.projects);
+  }, 2000);
 
   afterAll(async () => {
     jest.restoreAllMocks();
     process.env = originalEnv;
+    await mongooseConnections.remove('projects');
     await mongooseConnections.remove('users');
     await app.close();
-  });
-
-  beforeEach(async () => {
-    await mongooseConnections.insert('projects', projectsMock.projects);
-  });
-
-  afterEach(async () => {
-    await mongooseConnections.remove('projects');
-  });
+  }, 2000);
 
   it('/projects (GET)', async () => {
     const { body, status } = await request(app.getHttpServer()).get(
@@ -242,7 +237,7 @@ describe('Testing Projects Route (e2e)', () => {
       const { body: get } = await request(app.getHttpServer()).get('/projects');
 
       const { body, status } = await request(app.getHttpServer())
-        .delete(`/projects?id=${get[0].id}`)
+        .delete(`/projects?id=${get[get.length - 1].id}`)
         .set('Authorization', token);
 
       expect(body).toEqual({});
@@ -256,7 +251,7 @@ describe('Testing Projects Route (e2e)', () => {
         );
 
         const { body, status } = await request(app.getHttpServer())
-          .delete(`/projects/?id=${get[0].id}`)
+          .delete(`/projects/?id=${get[get.length - 1].id}`)
           .set('Authorization', token);
 
         expect(status).toBe(204);

@@ -11,9 +11,12 @@ describe('Testing Posts Route (e2e)', () => {
   let token: string;
   const originalEnv = process.env;
   const mongooseConnections = new MongooseConnections();
+  const fakeUser = {
+    username: 'Jonh Doe',
+    password: 'minhaIncrivelSenha1',
+  };
 
   beforeAll(async () => {
-    jest.resetModules();
     process.env = {
       ...originalEnv,
       NODE_ENV: 'TEST',
@@ -29,8 +32,6 @@ describe('Testing Posts Route (e2e)', () => {
     app.useGlobalPipes(new ValidationPipe());
     await app.init();
 
-    const fakeUser = { username: 'Jonh Doe', password: 'minhaIncrivelSenha1' };
-
     await request(app.getHttpServer())
       .post('/user/register')
       .send(fakeUser)
@@ -41,22 +42,17 @@ describe('Testing Posts Route (e2e)', () => {
       .send(fakeUser);
 
     token = body.token;
-  });
+
+    await mongooseConnections.insert('posts', postsMock.posts);
+  }, 2000);
 
   afterAll(async () => {
+    jest.restoreAllMocks();
     process.env = originalEnv;
+    await mongooseConnections.remove('posts');
     await mongooseConnections.remove('users');
     await app.close();
-    jest.restoreAllMocks();
-  });
-
-  beforeEach(async () => {
-    await mongooseConnections.insert('posts', postsMock.posts);
-  });
-
-  afterEach(async () => {
-    await mongooseConnections.remove('posts');
-  });
+  }, 2000);
 
   it('/posts (GET)', async () => {
     const { status, body } = await request(app.getHttpServer()).get('/posts');
@@ -364,7 +360,7 @@ describe('Testing Posts Route (e2e)', () => {
 
     it('Testing when post is delete with success', async () => {
       const { body: get } = await request(app.getHttpServer()).get('/posts');
-      const id = get[0].id;
+      const id = get[get.length - 1].id;
 
       const { status, body } = await request(app.getHttpServer())
         .delete(`/posts/?id=${id}`)
@@ -389,7 +385,7 @@ describe('Testing Posts Route (e2e)', () => {
         const { body: get } = await request(app.getHttpServer()).get('/posts');
 
         const { body, status } = await request(app.getHttpServer())
-          .delete(`/posts/?id=${get[0].id}`)
+          .delete(`/posts/?id=${get[get.length - 1].id}`)
           .set('Authorization', token);
 
         expect(status).toBe(204);
