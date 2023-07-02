@@ -12,7 +12,13 @@ export class PostsService {
   }
 
   public async getPostById(id: string) {
-    return await this.postsRepository.getPostById(id);
+    const post = await this.postsRepository.getPostById(id);
+
+    if (post === null) {
+      throw new NotFoundException('Post não encontrado');
+    }
+
+    return post;
   }
 
   public async createPost(post: CreatePostDto) {

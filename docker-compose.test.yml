@@ -1,0 +1,27 @@
+version: '3.9'
+
+services:
+  blog-api-db-test:
+    image: mongo:5.0.7
+    container_name: blog-api-db-test
+    restart: always
+    healthcheck:
+      test: echo 'db.runCommand({serverStatus:1}).ok' | mongo --quiet | grep 1
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    cap_add:
+      - SYS_NICE
+    ports:
+      - 27018:27017
+
+  blog-api-test:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    depends_on:
+      blog-api-db-test:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL_TEST=mongodb://blog-api-db-test:27017/blog-test
+      - NODE_ENV=TEST
