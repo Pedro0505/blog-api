@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
-import { projectsMock } from './mock/data';
+import { authMock, projectsMock } from './mock/data';
 import SerializeBody from './utils/SerializeBody';
 import { AppModule } from '../src/app.module';
 import { MongooseConnections } from './utils/MongooseConnections';
@@ -11,10 +11,12 @@ describe('Testing Projects Route (e2e)', () => {
   let token: string;
   const mongooseConnections = new MongooseConnections();
   const originalEnv = process.env;
+  const fakeUser = {
+    username: 'Jonh Doe',
+    password: 'minhaIncrivelSenha1',
+  };
 
   beforeAll(async () => {
-    jest.resetModules();
-
     process.env = {
       ...originalEnv,
       NODE_ENV: 'TEST',
@@ -30,8 +32,6 @@ describe('Testing Projects Route (e2e)', () => {
     app.useGlobalPipes(new ValidationPipe());
     await app.init();
 
-    const fakeUser = { username: 'Jonh Doe', password: 'minhaIncrivelSenha1' };
-
     await request(app.getHttpServer())
       .post('/user/register')
       .send(fakeUser)
@@ -42,21 +42,17 @@ describe('Testing Projects Route (e2e)', () => {
       .send(fakeUser);
 
     token = body.token;
-  });
+
+    await mongooseConnections.insert('projects', projectsMock.projects);
+  }, 2000);
 
   afterAll(async () => {
     jest.restoreAllMocks();
     process.env = originalEnv;
-    await app.close();
-  });
-
-  beforeEach(async () => {
-    await mongooseConnections.insert('projects', projectsMock.projects);
-  });
-
-  afterEach(async () => {
     await mongooseConnections.remove('projects');
-  });
+    await mongooseConnections.remove('users');
+    await app.close();
+  }, 2000);
 
   it('/projects (GET)', async () => {
     const { body, status } = await request(app.getHttpServer()).get(
@@ -87,6 +83,42 @@ describe('Testing Projects Route (e2e)', () => {
       expect(body.name).toBe(projectsMock.projectCreated.name);
       expect(body.description).toBe(projectsMock.projectCreated.description);
       expect(body.url).toBe(projectsMock.projectCreated.url);
+    });
+
+    describe('Testing auth in POST route', () => {
+      it('Testing when is successfully authenticated', async () => {
+        const { body, status } = await request(app.getHttpServer())
+          .post('/projects')
+          .set('Authorization', token)
+          .send(projectsMock.projectToCreate);
+
+        expect(status).toBe(201);
+        expect(body.name).toBeDefined();
+        expect(body.url).toBeDefined();
+        expect(body.description).toBeDefined();
+        expect(body.id).toBeDefined();
+      });
+
+      it('Testing when authentication data are invalid', async () => {
+        const { body, status } = await request(app.getHttpServer())
+          .post('/projects')
+          .set('Authorization', authMock.invalidToken)
+          .send(projectsMock.projectToCreate);
+
+        expect(status).toBe(401);
+        expect(body.message).toBeDefined();
+        expect(body.message).toBe('Expired or invalid token');
+      });
+
+      it('Testing when Authorization is not set', async () => {
+        const { body, status } = await request(app.getHttpServer())
+          .post('/projects')
+          .send(projectsMock.projectToCreate);
+
+        expect(status).toBe(401);
+        expect(body.message).toBeDefined();
+        expect(body.message).toBe('Token not found');
+      });
     });
 
     describe('Testing name DTO erros', () => {
@@ -205,11 +237,54 @@ describe('Testing Projects Route (e2e)', () => {
       const { body: get } = await request(app.getHttpServer()).get('/projects');
 
       const { body, status } = await request(app.getHttpServer())
-        .delete(`/projects?id=${get[0].id}`)
+        .delete(`/projects?id=${get[get.length - 1].id}`)
         .set('Authorization', token);
 
       expect(body).toEqual({});
       expect(status).toBe(204);
+    });
+
+    describe('Testing auth in DELETE route', () => {
+      it('Testing when is successfully authenticated', async () => {
+        const { body: get } = await request(app.getHttpServer()).get(
+          '/projects',
+        );
+
+        const { body, status } = await request(app.getHttpServer())
+          .delete(`/projects/?id=${get[get.length - 1].id}`)
+          .set('Authorization', token);
+
+        expect(status).toBe(204);
+        expect(body).toStrictEqual({});
+      });
+
+      it('Testing when authentication data are invalid', async () => {
+        const { body: get } = await request(app.getHttpServer()).get(
+          '/projects',
+        );
+
+        const { body, status } = await request(app.getHttpServer())
+          .delete(`/projects/?id=${get[0].id}`)
+          .set('Authorization', authMock.invalidToken);
+
+        expect(status).toBe(401);
+        expect(body.message).toBeDefined();
+        expect(body.message).toBe('Expired or invalid token');
+      });
+
+      it('Testing when Authorization is not set', async () => {
+        const { body: get } = await request(app.getHttpServer()).get(
+          '/projects',
+        );
+
+        const { body, status } = await request(app.getHttpServer()).delete(
+          `/projects/?id=${get[0].id}`,
+        );
+
+        expect(status).toBe(401);
+        expect(body.message).toBeDefined();
+        expect(body.message).toBe('Token not found');
+      });
     });
   });
 
@@ -351,6 +426,54 @@ describe('Testing Projects Route (e2e)', () => {
 
         expect(body.message).toContain('A url precisa ser uma strig');
         expect(status).toBe(400);
+      });
+    });
+
+    describe('Testing auth in PATCH route', () => {
+      it('Testing when is successfully authenticated', async () => {
+        const { body: get } = await request(app.getHttpServer()).get(
+          '/projects',
+        );
+
+        const { body, status } = await request(app.getHttpServer())
+          .patch(`/projects/?id=${get[0].id}`)
+          .send(projectsMock.projectToPatch)
+          .set('Authorization', token);
+
+        expect(status).toBe(200);
+        expect(body.name).toBeDefined();
+        expect(body.url).toBeDefined();
+        expect(body.description).toBeDefined();
+        expect(body.id).toBeDefined();
+      });
+
+      it('Testing when authentication data are invalid', async () => {
+        const { body: get } = await request(app.getHttpServer()).get(
+          '/projects',
+        );
+
+        const { body, status } = await request(app.getHttpServer())
+          .patch(`/projects/?id=${get[0].id}`)
+          .send(projectsMock.projectToPatch)
+          .set('Authorization', authMock.invalidToken);
+
+        expect(status).toBe(401);
+        expect(body.message).toBeDefined();
+        expect(body.message).toBe('Expired or invalid token');
+      });
+
+      it('Testing when Authorization is not set', async () => {
+        const { body: get } = await request(app.getHttpServer()).get(
+          '/projects',
+        );
+
+        const { body, status } = await request(app.getHttpServer())
+          .patch(`/projects/?id=${get[0].id}`)
+          .send(projectsMock.projectToPatch);
+
+        expect(status).toBe(401);
+        expect(body.message).toBeDefined();
+        expect(body.message).toBe('Token not found');
       });
     });
   });

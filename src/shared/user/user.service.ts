@@ -24,7 +24,7 @@ export class UserService {
 
     const getUser = await this.userRepository.getUserByUsername(user.username);
 
-    if (!!getUser) {
+    if (getUser !== null) {
       throw new ConflictException('Usuário já existe');
     }
 
@@ -41,7 +41,7 @@ export class UserService {
     const getUser = await this.userRepository.getUserByUsername(user.username);
 
     if (!getUser) {
-      return new UnauthorizedException('Usuário ou senha incorreta');
+      throw new UnauthorizedException('Usuário não cadastrado');
     }
 
     const token = await this.authService.signIn(
@@ -51,6 +51,6 @@ export class UserService {
       getUser.username,
     );
 
-    return token;
+    return { token };
   }
 }

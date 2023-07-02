@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
-import { postsMock } from './mock/data';
+import { authMock, postsMock } from './mock/data';
 import SerializeBody from './utils/SerializeBody';
 import { AppModule } from '../src/app.module';
 import { MongooseConnections } from './utils/MongooseConnections';
@@ -11,9 +11,12 @@ describe('Testing Posts Route (e2e)', () => {
   let token: string;
   const originalEnv = process.env;
   const mongooseConnections = new MongooseConnections();
+  const fakeUser = {
+    username: 'Jonh Doe',
+    password: 'minhaIncrivelSenha1',
+  };
 
   beforeAll(async () => {
-    jest.resetModules();
     process.env = {
       ...originalEnv,
       NODE_ENV: 'TEST',
@@ -29,8 +32,6 @@ describe('Testing Posts Route (e2e)', () => {
     app.useGlobalPipes(new ValidationPipe());
     await app.init();
 
-    const fakeUser = { username: 'Jonh Doe', password: 'minhaIncrivelSenha1' };
-
     await request(app.getHttpServer())
       .post('/user/register')
       .send(fakeUser)
@@ -41,21 +42,17 @@ describe('Testing Posts Route (e2e)', () => {
       .send(fakeUser);
 
     token = body.token;
-  });
+
+    await mongooseConnections.insert('posts', postsMock.posts);
+  }, 2000);
 
   afterAll(async () => {
-    process.env = originalEnv;
-    await app.close();
     jest.restoreAllMocks();
-  });
-
-  beforeEach(async () => {
-    await mongooseConnections.insert('posts', postsMock.posts);
-  });
-
-  afterEach(async () => {
+    process.env = originalEnv;
     await mongooseConnections.remove('posts');
-  });
+    await mongooseConnections.remove('users');
+    await app.close();
+  }, 2000);
 
   it('/posts (GET)', async () => {
     const { status, body } = await request(app.getHttpServer()).get('/posts');
@@ -92,6 +89,16 @@ describe('Testing Posts Route (e2e)', () => {
       expect(body.id).toBe(id);
     });
 
+    it('Testing get by id with id which not exist', async () => {
+      const { status, body } = await request(app.getHttpServer()).get(
+        '/posts/?id=64943e04690a415361309207',
+      );
+
+      expect(status).toBe(404);
+      expect(body.message).toBeDefined();
+      expect(body.message).toBe('Post não encontrado');
+    });
+
     it('Testing get with invalid id', async () => {
       const { status, body } = await request(app.getHttpServer()).get(
         '/posts/?id=123',
@@ -122,6 +129,44 @@ describe('Testing Posts Route (e2e)', () => {
       expect(body.description).toStrictEqual(postsMock.postCreated.description);
       expect(body.title).toStrictEqual(postsMock.postCreated.title);
       expect(testDate).toBeTruthy();
+    });
+
+    describe('Testing auth in POST route', () => {
+      it('Testing when is successfully authenticated', async () => {
+        const { body, status } = await request(app.getHttpServer())
+          .post('/posts')
+          .set('Authorization', token)
+          .send(postsMock.postToCreate);
+
+        expect(status).toBe(201);
+        expect(body.category).toBeDefined();
+        expect(body.content).toBeDefined();
+        expect(body.description).toBeDefined();
+        expect(body.published).toBeDefined();
+        expect(body.title).toBeDefined();
+        expect(body.id).toBeDefined();
+      });
+
+      it('Testing when authentication data are invalid', async () => {
+        const { body, status } = await request(app.getHttpServer())
+          .post('/posts')
+          .set('Authorization', authMock.invalidToken)
+          .send(postsMock.postToCreate);
+
+        expect(status).toBe(401);
+        expect(body.message).toBeDefined();
+        expect(body.message).toBe('Expired or invalid token');
+      });
+
+      it('Testing when Authorization is not set', async () => {
+        const { body, status } = await request(app.getHttpServer())
+          .post('/posts')
+          .send(postsMock.postToCreate);
+
+        expect(status).toBe(401);
+        expect(body.message).toBeDefined();
+        expect(body.message).toBe('Token not found');
+      });
     });
 
     describe('Testing DTO erros in title', () => {
@@ -315,7 +360,7 @@ describe('Testing Posts Route (e2e)', () => {
 
     it('Testing when post is delete with success', async () => {
       const { body: get } = await request(app.getHttpServer()).get('/posts');
-      const id = get[0].id;
+      const id = get[get.length - 1].id;
 
       const { status, body } = await request(app.getHttpServer())
         .delete(`/posts/?id=${id}`)
@@ -333,6 +378,43 @@ describe('Testing Posts Route (e2e)', () => {
       expect(status).toBe(400);
       expect(body).toHaveProperty('message');
       expect(body.message).toBe('Invalid id');
+    });
+
+    describe('Testing auth in DELETE route', () => {
+      it('Testing when is successfully authenticated', async () => {
+        const { body: get } = await request(app.getHttpServer()).get('/posts');
+
+        const { body, status } = await request(app.getHttpServer())
+          .delete(`/posts/?id=${get[get.length - 1].id}`)
+          .set('Authorization', token);
+
+        expect(status).toBe(204);
+        expect(body).toStrictEqual({});
+      });
+
+      it('Testing when authentication data are invalid', async () => {
+        const { body: get } = await request(app.getHttpServer()).get('/posts');
+
+        const { body, status } = await request(app.getHttpServer())
+          .delete(`/posts/?id=${get[0].id}`)
+          .set('Authorization', authMock.invalidToken);
+
+        expect(status).toBe(401);
+        expect(body.message).toBeDefined();
+        expect(body.message).toBe('Expired or invalid token');
+      });
+
+      it('Testing when Authorization is not set', async () => {
+        const { body: get } = await request(app.getHttpServer()).get('/posts');
+
+        const { body, status } = await request(app.getHttpServer()).delete(
+          `/posts/?id=${get[0].id}`,
+        );
+
+        expect(status).toBe(401);
+        expect(body.message).toBeDefined();
+        expect(body.message).toBe('Token not found');
+      });
     });
   });
 
@@ -377,6 +459,50 @@ describe('Testing Posts Route (e2e)', () => {
       expect(status).toBe(400);
       expect(body).toHaveProperty('message');
       expect(body.message).toBe('Invalid id');
+    });
+
+    describe('Testing auth in PATCH route', () => {
+      it('Testing when is successfully authenticated', async () => {
+        const { body: get } = await request(app.getHttpServer()).get('/posts');
+
+        const { body, status } = await request(app.getHttpServer())
+          .patch(`/posts/?id=${get[0].id}`)
+          .set('Authorization', token)
+          .send(postsMock.postToPatch);
+
+        expect(status).toBe(200);
+        expect(body.category).toBeDefined();
+        expect(body.content).toBeDefined();
+        expect(body.description).toBeDefined();
+        expect(body.published).toBeDefined();
+        expect(body.title).toBeDefined();
+        expect(body.id).toBeDefined();
+      });
+
+      it('Testing when authentication data are invalid', async () => {
+        const { body: get } = await request(app.getHttpServer()).get('/posts');
+
+        const { body, status } = await request(app.getHttpServer())
+          .patch(`/posts/?id=${get[0].id}`)
+          .set('Authorization', authMock.invalidToken)
+          .send(postsMock.postToPatch);
+
+        expect(status).toBe(401);
+        expect(body.message).toBeDefined();
+        expect(body.message).toBe('Expired or invalid token');
+      });
+
+      it('Testing when Authorization is not set', async () => {
+        const { body: get } = await request(app.getHttpServer()).get('/posts');
+
+        const { body, status } = await request(app.getHttpServer())
+          .patch(`/posts/?id=${get[0].id}`)
+          .send(postsMock.postToPatch);
+
+        expect(status).toBe(401);
+        expect(body.message).toBeDefined();
+        expect(body.message).toBe('Token not found');
+      });
     });
 
     describe('Testing DTO erros in title', () => {
