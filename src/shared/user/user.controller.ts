@@ -20,6 +20,6 @@ export class UserController {
   @Post('/login')
   public async login(@Body() user: LoginUserDto) {
     const token = await this.userService.login(user);
-    return { token };
+    return token;
   }
 }
