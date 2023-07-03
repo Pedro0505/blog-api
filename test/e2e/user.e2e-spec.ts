@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { MongooseConnections } from './utils/MongooseConnections';
+import { MongooseConnections } from '../utils/MongooseConnections';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
-import { AppModule } from '../src/app.module';
+import { AppModule } from '../../src/app.module';
 import * as request from 'supertest';
-import { userMock } from './mock/data';
+import { userMock } from '../mock/data';
 
 describe('Testing Users Route (e2e)', () => {
   let app: INestApplication;

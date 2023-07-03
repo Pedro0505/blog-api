@@ -1,10 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
-import { postsMock } from './mock/data';
-import SerializeBody from './utils/SerializeBody';
-import { AppModule } from '../src/app.module';
-import { MongooseConnections } from './utils/MongooseConnections';
+import { postsMock } from '../mock/data';
+import SerializeBody from '../utils/SerializeBody';
+import { AppModule } from '../../src/app.module';
+import { MongooseConnections } from '../utils/MongooseConnections';
 
 describe('Testing Posts Route (e2e)', () => {
   let app: INestApplication;
