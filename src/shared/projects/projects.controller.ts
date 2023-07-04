@@ -11,8 +11,9 @@ import {
 import { ProjectsService } from './projects.service';
 import { CreateProjectDto } from './dto/CreateProject.dto';
 import { UpdateProjectDto } from './dto/UpdateProject.dto';
+import ApiRoutes from '../../constants/ApiRoutes';
 
-@Controller('/projects')
+@Controller(ApiRoutes.PROJECTS)
 export class ProjectsController {
   constructor(private projectsService: ProjectsService) {}
 
