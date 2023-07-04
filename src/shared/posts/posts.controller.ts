@@ -11,8 +11,9 @@ import {
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/CreatePost.dto';
 import { UpdatePostDto } from './dto/UpdatePost.dto';
+import ApiRoutes from '../../constants/ApiRoutes';
 
-@Controller('/posts')
+@Controller(ApiRoutes.POSTS)
 export class PostsController {
   constructor(private postsService: PostsService) {}
 

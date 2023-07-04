@@ -186,7 +186,7 @@ describe('', () => {
     describe('Testing auth in POST route', () => {
       it('Testing when is successfully authenticated', async () => {
         const { body, status } = await request(app.getHttpServer())
-          .post('/posts')
+          .post(ApiRoutes.POSTS)
           .set('Authorization', token)
           .send(postsMock.postToCreate);
 
@@ -201,7 +201,7 @@ describe('', () => {
 
       it('Testing when authentication data are invalid', async () => {
         const { body, status } = await request(app.getHttpServer())
-          .post('/posts')
+          .post(ApiRoutes.POSTS)
           .set('Authorization', authMock.invalidToken)
           .send(postsMock.postToCreate);
 
@@ -212,7 +212,7 @@ describe('', () => {
 
       it('Testing when Authorization is not set', async () => {
         const { body, status } = await request(app.getHttpServer())
-          .post('/posts')
+          .post(ApiRoutes.POSTS)
           .send(postsMock.postToCreate);
 
         expect(status).toBe(401);
@@ -223,7 +223,9 @@ describe('', () => {
 
     describe('Testing auth in DELETE route', () => {
       it('Testing when is successfully authenticated', async () => {
-        const { body: get } = await request(app.getHttpServer()).get('/posts');
+        const { body: get } = await request(app.getHttpServer()).get(
+          ApiRoutes.POSTS,
+        );
 
         const { body, status } = await request(app.getHttpServer())
           .delete(`/posts/?id=${get[get.length - 1].id}`)
@@ -234,7 +236,9 @@ describe('', () => {
       });
 
       it('Testing when authentication data are invalid', async () => {
-        const { body: get } = await request(app.getHttpServer()).get('/posts');
+        const { body: get } = await request(app.getHttpServer()).get(
+          ApiRoutes.POSTS,
+        );
 
         const { body, status } = await request(app.getHttpServer())
           .delete(`/posts/?id=${get[0].id}`)
@@ -246,7 +250,9 @@ describe('', () => {
       });
 
       it('Testing when Authorization is not set', async () => {
-        const { body: get } = await request(app.getHttpServer()).get('/posts');
+        const { body: get } = await request(app.getHttpServer()).get(
+          ApiRoutes.POSTS,
+        );
 
         const { body, status } = await request(app.getHttpServer()).delete(
           `/posts/?id=${get[0].id}`,
@@ -259,7 +265,9 @@ describe('', () => {
     });
     describe('Testing auth in PATCH route', () => {
       it('Testing when is successfully authenticated', async () => {
-        const { body: get } = await request(app.getHttpServer()).get('/posts');
+        const { body: get } = await request(app.getHttpServer()).get(
+          ApiRoutes.POSTS,
+        );
 
         const { body, status } = await request(app.getHttpServer())
           .patch(`/posts/?id=${get[0].id}`)
@@ -276,7 +284,9 @@ describe('', () => {
       });
 
       it('Testing when authentication data are invalid', async () => {
-        const { body: get } = await request(app.getHttpServer()).get('/posts');
+        const { body: get } = await request(app.getHttpServer()).get(
+          ApiRoutes.POSTS,
+        );
 
         const { body, status } = await request(app.getHttpServer())
           .patch(`/posts/?id=${get[0].id}`)
@@ -289,7 +299,9 @@ describe('', () => {
       });
 
       it('Testing when Authorization is not set', async () => {
-        const { body: get } = await request(app.getHttpServer()).get('/posts');
+        const { body: get } = await request(app.getHttpServer()).get(
+          ApiRoutes.POSTS,
+        );
 
         const { body, status } = await request(app.getHttpServer())
           .patch(`/posts/?id=${get[0].id}`)

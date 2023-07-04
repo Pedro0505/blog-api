@@ -35,8 +35,8 @@ export class AppModule implements NestModule {
 
     consumer
       .apply(ValidatorMiddleware)
-      .exclude({ path: '/posts', method: RequestMethod.POST })
-      .forRoutes('/posts');
+      .exclude({ path: ApiRoutes.POSTS, method: RequestMethod.POST })
+      .forRoutes(ApiRoutes.POSTS);
 
     consumer
       .apply(AuthMiddleware)
@@ -45,7 +45,7 @@ export class AppModule implements NestModule {
 
     consumer
       .apply(AuthMiddleware)
-      .exclude({ path: '/posts', method: RequestMethod.GET })
-      .forRoutes('/posts');
+      .exclude({ path: ApiRoutes.POSTS, method: RequestMethod.GET })
+      .forRoutes(ApiRoutes.POSTS);
   }
 }
