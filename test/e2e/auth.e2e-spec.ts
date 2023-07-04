@@ -4,6 +4,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import * as request from 'supertest';
 import { AppModule } from '../../src/app.module';
 import { authMock, postsMock, projectsMock } from '../mock/data';
+import ApiRoutes from '../../src/constants/ApiRoutes';
 
 describe('', () => {
   let app: INestApplication;
@@ -57,7 +58,7 @@ describe('', () => {
     describe('Testing auth in POST route', () => {
       it('Testing when is successfully authenticated', async () => {
         const { body, status } = await request(app.getHttpServer())
-          .post('/projects')
+          .post(ApiRoutes.PROJECTS)
           .set('Authorization', token)
           .send(projectsMock.projectToCreate);
 
@@ -70,7 +71,7 @@ describe('', () => {
 
       it('Testing when authentication data are invalid', async () => {
         const { body, status } = await request(app.getHttpServer())
-          .post('/projects')
+          .post(ApiRoutes.PROJECTS)
           .set('Authorization', authMock.invalidToken)
           .send(projectsMock.projectToCreate);
 
@@ -81,7 +82,7 @@ describe('', () => {
 
       it('Testing when Authorization is not set', async () => {
         const { body, status } = await request(app.getHttpServer())
-          .post('/projects')
+          .post(ApiRoutes.PROJECTS)
           .send(projectsMock.projectToCreate);
 
         expect(status).toBe(401);
@@ -92,7 +93,7 @@ describe('', () => {
     describe('Testing auth in DELETE route', () => {
       it('Testing when is successfully authenticated', async () => {
         const { body: get } = await request(app.getHttpServer()).get(
-          '/projects',
+          ApiRoutes.PROJECTS,
         );
 
         const { body, status } = await request(app.getHttpServer())
@@ -105,7 +106,7 @@ describe('', () => {
 
       it('Testing when authentication data are invalid', async () => {
         const { body: get } = await request(app.getHttpServer()).get(
-          '/projects',
+          ApiRoutes.PROJECTS,
         );
 
         const { body, status } = await request(app.getHttpServer())
@@ -119,7 +120,7 @@ describe('', () => {
 
       it('Testing when Authorization is not set', async () => {
         const { body: get } = await request(app.getHttpServer()).get(
-          '/projects',
+          ApiRoutes.PROJECTS,
         );
 
         const { body, status } = await request(app.getHttpServer()).delete(
@@ -135,7 +136,7 @@ describe('', () => {
     describe('Testing auth in PATCH route', () => {
       it('Testing when is successfully authenticated', async () => {
         const { body: get } = await request(app.getHttpServer()).get(
-          '/projects',
+          ApiRoutes.PROJECTS,
         );
 
         const { body, status } = await request(app.getHttpServer())
@@ -152,7 +153,7 @@ describe('', () => {
 
       it('Testing when authentication data are invalid', async () => {
         const { body: get } = await request(app.getHttpServer()).get(
-          '/projects',
+          ApiRoutes.PROJECTS,
         );
 
         const { body, status } = await request(app.getHttpServer())
@@ -167,7 +168,7 @@ describe('', () => {
 
       it('Testing when Authorization is not set', async () => {
         const { body: get } = await request(app.getHttpServer()).get(
-          '/projects',
+          ApiRoutes.PROJECTS,
         );
 
         const { body, status } = await request(app.getHttpServer())
