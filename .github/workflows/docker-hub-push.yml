@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  eslint-api:
+  docker-publishing:
     runs-on: ubuntu-20.04
     steps:
       - name: Verify Git Repository

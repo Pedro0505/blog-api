@@ -5,6 +5,7 @@ import { postsMock } from '../mock/data';
 import SerializeBody from '../utils/SerializeBody';
 import { AppModule } from '../../src/app.module';
 import { MongooseConnections } from '../utils/MongooseConnections';
+import ApiRoutes from '../../src/constants/ApiRoutes';
 
 describe('Testing Posts Route (e2e)', () => {
   let app: INestApplication;
@@ -55,7 +56,9 @@ describe('Testing Posts Route (e2e)', () => {
   }, 2000);
 
   it('/posts (GET)', async () => {
-    const { status, body } = await request(app.getHttpServer()).get('/posts');
+    const { status, body } = await request(app.getHttpServer()).get(
+      ApiRoutes.POSTS,
+    );
 
     expect(status).toBe(200);
     expect(body).toHaveLength(3);
@@ -72,7 +75,9 @@ describe('Testing Posts Route (e2e)', () => {
 
   describe('/posts/?id (GET)', () => {
     it('Testing when get a post with success', async () => {
-      const { body: get } = await request(app.getHttpServer()).get('/posts');
+      const { body: get } = await request(app.getHttpServer()).get(
+        ApiRoutes.POSTS,
+      );
       const id = get[0].id;
 
       const { status, body } = await request(app.getHttpServer()).get(
@@ -115,7 +120,7 @@ describe('Testing Posts Route (e2e)', () => {
 
     it('Testing post creating with success', async () => {
       const { status, body } = await request(app.getHttpServer())
-        .post('/posts')
+        .post(ApiRoutes.POSTS)
         .set('Authorization', token)
         .send(postsMock.postToCreate);
 
@@ -134,7 +139,7 @@ describe('Testing Posts Route (e2e)', () => {
     describe('Testing DTO erros in title', () => {
       it('Testing post when dont recive title', async () => {
         const { body, status } = await request(app.getHttpServer())
-          .post('/posts')
+          .post(ApiRoutes.POSTS)
           .set('Authorization', token)
           .send(serializeBodyCreate.removeKey('title'));
 
@@ -144,7 +149,7 @@ describe('Testing Posts Route (e2e)', () => {
 
       it('Testing when title is not a string', async () => {
         const { status, body } = await request(app.getHttpServer())
-          .post('/posts')
+          .post(ApiRoutes.POSTS)
           .set('Authorization', token)
           .send(serializeBodyCreate.changeKeyValue('title', 1));
 
@@ -155,7 +160,7 @@ describe('Testing Posts Route (e2e)', () => {
 
       it('Testing when title is empty', async () => {
         const { status, body } = await request(app.getHttpServer())
-          .post('/posts')
+          .post(ApiRoutes.POSTS)
           .set('Authorization', token)
           .send(serializeBodyCreate.changeKeyValue('title', ''));
 
@@ -166,7 +171,7 @@ describe('Testing Posts Route (e2e)', () => {
 
       it('Testing when title have more than 50 char', async () => {
         const { status, body } = await request(app.getHttpServer())
-          .post('/posts')
+          .post(ApiRoutes.POSTS)
           .set('Authorization', token)
           .send(serializeBodyCreate.repeatChar('title', 25));
 
@@ -181,7 +186,7 @@ describe('Testing Posts Route (e2e)', () => {
     describe('Testing DTO erros in description', () => {
       it('Testing post when dont recive description', async () => {
         const { body, status } = await request(app.getHttpServer())
-          .post('/posts')
+          .post(ApiRoutes.POSTS)
           .set('Authorization', token)
           .send(serializeBodyCreate.removeKey('description'));
 
@@ -191,7 +196,7 @@ describe('Testing Posts Route (e2e)', () => {
 
       it('Testing when description is not a string', async () => {
         const { status, body } = await request(app.getHttpServer())
-          .post('/posts')
+          .post(ApiRoutes.POSTS)
           .set('Authorization', token)
           .send(serializeBodyCreate.changeKeyValue('description', 1));
 
@@ -202,7 +207,7 @@ describe('Testing Posts Route (e2e)', () => {
 
       it('Testing when description is empty', async () => {
         const { status, body } = await request(app.getHttpServer())
-          .post('/posts')
+          .post(ApiRoutes.POSTS)
           .set('Authorization', token)
           .send(serializeBodyCreate.changeKeyValue('description', ''));
 
@@ -213,7 +218,7 @@ describe('Testing Posts Route (e2e)', () => {
 
       it('Testing when description have more than 50 char', async () => {
         const { status, body } = await request(app.getHttpServer())
-          .post('/posts')
+          .post(ApiRoutes.POSTS)
           .set('Authorization', token)
           .send(serializeBodyCreate.repeatChar('description', 25));
 
@@ -228,7 +233,7 @@ describe('Testing Posts Route (e2e)', () => {
     describe('Testing DTO erros in category', () => {
       it('Testing post when dont recive category', async () => {
         const { body, status } = await request(app.getHttpServer())
-          .post('/posts')
+          .post(ApiRoutes.POSTS)
           .set('Authorization', token)
           .send(serializeBodyCreate.removeKey('category'));
 
@@ -238,7 +243,7 @@ describe('Testing Posts Route (e2e)', () => {
 
       it('Testing when category is not a string', async () => {
         const { status, body } = await request(app.getHttpServer())
-          .post('/posts')
+          .post(ApiRoutes.POSTS)
           .set('Authorization', token)
           .send(serializeBodyCreate.changeKeyValue('category', 1));
 
@@ -249,7 +254,7 @@ describe('Testing Posts Route (e2e)', () => {
 
       it('Testing when category is empty', async () => {
         const { status, body } = await request(app.getHttpServer())
-          .post('/posts')
+          .post(ApiRoutes.POSTS)
           .set('Authorization', token)
           .send(serializeBodyCreate.changeKeyValue('category', ''));
 
@@ -260,7 +265,7 @@ describe('Testing Posts Route (e2e)', () => {
 
       it('Testing when category have more than 50 char', async () => {
         const { status, body } = await request(app.getHttpServer())
-          .post('/posts')
+          .post(ApiRoutes.POSTS)
           .set('Authorization', token)
           .send(serializeBodyCreate.repeatChar('category', 25));
 
@@ -275,7 +280,7 @@ describe('Testing Posts Route (e2e)', () => {
     describe('Testing DTO erros in content', () => {
       it('Testing post when dont recive content', async () => {
         const { body, status } = await request(app.getHttpServer())
-          .post('/posts')
+          .post(ApiRoutes.POSTS)
           .set('Authorization', token)
           .send(serializeBodyCreate.removeKey('content'));
 
@@ -285,7 +290,7 @@ describe('Testing Posts Route (e2e)', () => {
 
       it('Testing when content is not a string', async () => {
         const { status, body } = await request(app.getHttpServer())
-          .post('/posts')
+          .post(ApiRoutes.POSTS)
           .set('Authorization', token)
           .send(serializeBodyCreate.changeKeyValue('content', 1));
 
@@ -296,7 +301,7 @@ describe('Testing Posts Route (e2e)', () => {
 
       it('Testing when content is empty', async () => {
         const { status, body } = await request(app.getHttpServer())
-          .post('/posts')
+          .post(ApiRoutes.POSTS)
           .set('Authorization', token)
           .send(serializeBodyCreate.changeKeyValue('content', ''));
 
@@ -321,7 +326,9 @@ describe('Testing Posts Route (e2e)', () => {
     });
 
     it('Testing when post is delete with success', async () => {
-      const { body: get } = await request(app.getHttpServer()).get('/posts');
+      const { body: get } = await request(app.getHttpServer()).get(
+        ApiRoutes.POSTS,
+      );
       const id = get[get.length - 1].id;
 
       const { status, body } = await request(app.getHttpServer())
@@ -358,7 +365,9 @@ describe('Testing Posts Route (e2e)', () => {
     });
 
     it('Testing when post is patch with success', async () => {
-      const { body: get } = await request(app.getHttpServer()).get('/posts');
+      const { body: get } = await request(app.getHttpServer()).get(
+        ApiRoutes.POSTS,
+      );
       const id = get[0].id;
 
       const { status, body } = await request(app.getHttpServer())
@@ -393,7 +402,7 @@ describe('Testing Posts Route (e2e)', () => {
 
       it('Testing when title is not a string', async () => {
         const { status, body } = await request(app.getHttpServer())
-          .patch('/posts')
+          .patch(ApiRoutes.POSTS)
           .set('Authorization', token)
           .send(serializeBodyUpdate.changeKeyValue('title', 1));
 
@@ -404,7 +413,7 @@ describe('Testing Posts Route (e2e)', () => {
 
       it('Testing when title is empty', async () => {
         const { status, body } = await request(app.getHttpServer())
-          .patch('/posts')
+          .patch(ApiRoutes.POSTS)
           .set('Authorization', token)
           .send(serializeBodyUpdate.changeKeyValue('title', ''));
 
@@ -415,7 +424,7 @@ describe('Testing Posts Route (e2e)', () => {
 
       it('Testing when title have more than 50 char', async () => {
         const { status, body } = await request(app.getHttpServer())
-          .patch('/posts')
+          .patch(ApiRoutes.POSTS)
           .set('Authorization', token)
           .send(serializeBodyUpdate.repeatChar('title', 25));
 
@@ -434,7 +443,7 @@ describe('Testing Posts Route (e2e)', () => {
 
       it('Testing when description is not a string', async () => {
         const { status, body } = await request(app.getHttpServer())
-          .patch('/posts')
+          .patch(ApiRoutes.POSTS)
           .set('Authorization', token)
           .send(serializeBodyUpdate.changeKeyValue('description', 1));
 
@@ -445,7 +454,7 @@ describe('Testing Posts Route (e2e)', () => {
 
       it('Testing when description is empty', async () => {
         const { status, body } = await request(app.getHttpServer())
-          .patch('/posts')
+          .patch(ApiRoutes.POSTS)
           .set('Authorization', token)
           .send(serializeBodyUpdate.changeKeyValue('description', ''));
 
@@ -456,7 +465,7 @@ describe('Testing Posts Route (e2e)', () => {
 
       it('Testing when description have more than 50 char', async () => {
         const { status, body } = await request(app.getHttpServer())
-          .patch('/posts')
+          .patch(ApiRoutes.POSTS)
           .set('Authorization', token)
           .send(serializeBodyUpdate.repeatChar('description', 25));
 
@@ -475,7 +484,7 @@ describe('Testing Posts Route (e2e)', () => {
 
       it('Testing when category is not a string', async () => {
         const { status, body } = await request(app.getHttpServer())
-          .patch('/posts')
+          .patch(ApiRoutes.POSTS)
           .set('Authorization', token)
           .send(serializeBodyUpdate.changeKeyValue('category', 1));
 
@@ -486,7 +495,7 @@ describe('Testing Posts Route (e2e)', () => {
 
       it('Testing when category is empty', async () => {
         const { status, body } = await request(app.getHttpServer())
-          .patch('/posts')
+          .patch(ApiRoutes.POSTS)
           .set('Authorization', token)
           .send(serializeBodyUpdate.changeKeyValue('category', ''));
 
@@ -497,7 +506,7 @@ describe('Testing Posts Route (e2e)', () => {
 
       it('Testing when category have more than 50 char', async () => {
         const { status, body } = await request(app.getHttpServer())
-          .patch('/posts')
+          .patch(ApiRoutes.POSTS)
           .set('Authorization', token)
           .send(serializeBodyUpdate.repeatChar('category', 25));
 
@@ -517,7 +526,7 @@ describe('Testing Posts Route (e2e)', () => {
 
       it('Testing when content is not a string', async () => {
         const { status, body } = await request(app.getHttpServer())
-          .patch('/posts')
+          .patch(ApiRoutes.POSTS)
           .set('Authorization', token)
           .send(serializeBodyUpdate.changeKeyValue('content', 1));
 
@@ -528,7 +537,7 @@ describe('Testing Posts Route (e2e)', () => {
 
       it('Testing when content is empty', async () => {
         const { status, body } = await request(app.getHttpServer())
-          .patch('/posts')
+          .patch(ApiRoutes.POSTS)
           .set('Authorization', token)
           .send(serializeBodyUpdate.changeKeyValue('content', ''));
 
