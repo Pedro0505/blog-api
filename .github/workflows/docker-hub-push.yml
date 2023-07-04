@@ -1,0 +1,27 @@
+name: Push and build docker image to Docker Hub
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  eslint-api:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Verify Git Repository
+        uses: actions/checkout@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: Dockerfile.dev
+          push: true
+          tags: pedro0505/blog-api:latest
