@@ -24,4 +24,4 @@ jobs:
           context: .
           file: Dockerfile.dev
           push: true
-          tags: pedro0505/blog-api:latest
+          tags: pedro0505/blog-api:1.0.0
