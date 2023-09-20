@@ -18,9 +18,15 @@ export class PostsController {
   constructor(private postsService: PostsService) {}
 
   @Get()
-  public async getPostById(@Query() query: { id: string }) {
+  public async getPostById(
+    @Query() query: { id: string; page: string; limit?: string },
+  ) {
     if (query.id) {
       return await this.postsService.getPostById(query.id);
+    }
+
+    if (query.page) {
+      return await this.postsService.getPaginablePosts(query.page, query.limit);
     }
 
     return await this.postsService.getAllPosts();

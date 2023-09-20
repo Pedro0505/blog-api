@@ -115,6 +115,42 @@ describe('Testing Posts Route (e2e)', () => {
     });
   });
 
+  describe('/posts/?page=&limit= (GET)', () => {
+    it('Testing when get a post in first page with success', async () => {
+      const { status, body } = await request(app.getHttpServer()).get(
+        '/posts/?page=1&limit=2',
+      );
+
+      expect(status).toBe(200);
+      expect(body.posts).toBeDefined();
+      expect(body.total).toBeDefined();
+      expect(body.page).toBeDefined();
+      expect(body.lastPage).toBeDefined();
+      expect(body.posts).toBeInstanceOf(Array);
+      expect(body.posts).toHaveLength(2);
+      expect(body.total).toBe(3);
+      expect(body.page).toBe(1);
+      expect(body.lastPage).toBe(2);
+    });
+
+    it('Testing when get a post in second page with success', async () => {
+      const { status, body } = await request(app.getHttpServer()).get(
+        '/posts/?page=2&limit=2',
+      );
+
+      expect(status).toBe(200);
+      expect(body.posts).toBeDefined();
+      expect(body.total).toBeDefined();
+      expect(body.page).toBeDefined();
+      expect(body.lastPage).toBeDefined();
+      expect(body.posts).toBeInstanceOf(Array);
+      expect(body.posts).toHaveLength(1);
+      expect(body.total).toBe(3);
+      expect(body.page).toBe(2);
+      expect(body.lastPage).toBe(2);
+    });
+  });
+
   describe('/posts (POST)', () => {
     const serializeBodyCreate = new SerializeBody(postsMock.postToCreate);
 
