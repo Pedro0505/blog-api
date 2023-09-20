@@ -11,6 +11,21 @@ export class PostsService {
     return await this.postsRepository.getAllPosts();
   }
 
+  public async getPaginablePosts(page: string, limit?: string) {
+    const newLimit = +limit || 5;
+    const pag = +page;
+
+    const posts = await this.postsRepository.getPostPaginable(pag, newLimit);
+    const total = await this.postsRepository.count();
+
+    return {
+      posts,
+      total: total,
+      page: pag,
+      lastPage: Math.ceil(total / newLimit),
+    };
+  }
+
   public async getPostById(id: string) {
     const post = await this.postsRepository.getPostById(id);
 
