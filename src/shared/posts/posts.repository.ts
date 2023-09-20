@@ -16,6 +16,18 @@ export class PostsRepository {
     return await this.postsModel.find();
   }
 
+  public async getPostPaginable(page: number, limit: number) {
+    return await this.postsModel
+      .find()
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .exec();
+  }
+
+  public async count() {
+    return await this.postsModel.count();
+  }
+
   public async getPostById(id: string) {
     return await this.postsModel.findById(id);
   }
