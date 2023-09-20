@@ -1,6 +1,13 @@
 name: Push and build docker image to Docker Hub
 
 on:
+  workflow_dispatch:
+    inputs:
+      docker-tag:
+        required: true
+        type: string
+        description: Type docker tag
+
   push:
     branches:
       - main
@@ -24,4 +31,4 @@ jobs:
           context: .
           file: Dockerfile.dev
           push: true
-          tags: pedro0505/blog-api:1.0.0
+          tags: pedro0505/blog-api:${{ github.event.inputs.docker-tag }}
