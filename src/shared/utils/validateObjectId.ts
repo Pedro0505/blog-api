@@ -1,5 +1,11 @@
+import { Injectable } from '@nestjs/common';
 import mongoose from 'mongoose';
 
-const validateObjectId = (id: string) => mongoose.isValidObjectId(id);
+@Injectable()
+class MongoValidator {
+  public validateObjectId(id: string) {
+    return mongoose.isValidObjectId(id);
+  }
+}
 
-export default validateObjectId;
+export default MongoValidator;

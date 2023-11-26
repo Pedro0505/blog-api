@@ -4,15 +4,17 @@ import {
   NestMiddleware,
 } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
-import validateObjectId from '../utils/validateObjectId';
+import MongoValidator from '../utils/validateObjectId';
 
 @Injectable()
 export default class ValidatorMiddleware implements NestMiddleware {
+  constructor(private readonly mongoValidator: MongoValidator) {}
+
   use(req: Request, res: Response, next: NextFunction) {
     const id = req.query.id as string | undefined;
 
-    if (Boolean(id)) {
-      const isValidId = validateObjectId(id);
+    if (id !== undefined) {
+      const isValidId = this.mongoValidator.validateObjectId(id);
 
       if (!isValidId) {
         throw new BadRequestException('Invalid id');
