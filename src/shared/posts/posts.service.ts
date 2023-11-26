@@ -13,7 +13,7 @@ export class PostsService {
 
   public async getPaginablePosts(page: string, limit?: string) {
     const newLimit = +limit || 5;
-    const pag = +page;
+    const pag = +page <= 0 ? 1 : +page;
 
     const posts = await this.postsRepository.getPostPaginable(pag, newLimit);
     const total = await this.postsRepository.count();
